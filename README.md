@@ -363,3 +363,6 @@ dist/      fertiges AppImage
 
 <!-- Lizenz eintragen, z. B. MIT -->
 Dieses Projekt steht unter der **MIT-Lizenz** – siehe [LICENSE](LICENSE).
+
+<img width="900" height="981" alt="Bildschirmfoto vom 2026-11-20 22-08-19" src="https://github.com/user-attachments/assets/3a0574d8-ca4f-4339-b6ee-dbf47f34425a" />
+
