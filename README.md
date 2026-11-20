@@ -88,7 +88,7 @@ python3 AppImage_Builder.py
 
 Wichtig: `AppImage_Builder.py`, `build_appimage_v2.sh` und `build_appimage_rust.sh` müssen **im selben Ordner** liegen.
 
-Alternativ das fertige `AppImage_Builder-x86_64.AppImage` aus den [Releases](../../releases) herunterladen, ausführbar machen und starten:
+Alternativ das fertige `AppImage_Builder.AppImage` aus den [Releases](../../releases) herunterladen, ausführbar machen und starten:
 
 ```bash
 chmod +x AppImage_Builder.AppImage
