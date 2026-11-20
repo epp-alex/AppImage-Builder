@@ -81,7 +81,7 @@ Beim ersten Build werden automatisch heruntergeladen (einmalig, danach zwischeng
 ## Installation
 
 ```bash
-git clone https://github.com/<DEIN-NAME>/AppImage-Builder.git
+git clone https://github.com/epp-alex/AppImage-Builder.git
 cd AppImage-Builder
 python3 AppImage_Builder.py
 ```
