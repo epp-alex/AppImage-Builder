@@ -91,8 +91,8 @@ Wichtig: `AppImage_Builder.py`, `build_appimage_v2.sh` und `build_appimage_rust.
 Alternativ das fertige `AppImage_Builder-x86_64.AppImage` aus den [Releases](../../releases) herunterladen, ausführbar machen und starten:
 
 ```bash
-chmod +x AppImage_Builder-x86_64.AppImage
-./AppImage_Builder-x86_64.AppImage
+chmod +x AppImage_Builder.AppImage
+./AppImage_Builder.AppImage
 ```
 
 ---
