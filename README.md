@@ -273,7 +273,7 @@ Als AppImage findet der Builder seine eingebauten Skripte selbst und gibt den Bu
 
 Eine Datei kann direkt beim Start übergeben werden:
 ```bash
-./AppImage_Builder-x86_64.AppImage ~/Projekte/MeinProgramm/MeinProgramm.py
+./AppImage_Builder.AppImage ~/Projekte/MeinProgramm/MeinProgramm.py
 ```
 
 ---
