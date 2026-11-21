@@ -11,6 +11,11 @@ AppImage Builder – Oberfläche für build_appimage_v2.sh (Python)
 3. Optionen mit Haken ein-/ausschalten
 4. "AppImage bauen" -> Ausgabe erscheint live im Fenster
 
+Sprachen: Deutsch und Englisch sind eingebaut. Weitere Sprachen als JSON-Datei
+in einen Ordner "lang" legen (neben diesem Programm oder in
+~/.config/AppImageBuilder/lang/). Vorlage erzeugen:
+    python3 AppImage_Builder.py --export-lang en > lang/es.json
+
 Beide Build-Skripte sollten im selben Ordner liegen wie dieses Programm
 (oder unter "Erweitert" bzw. "Rust" ausgewählt werden).
 """
@@ -41,6 +46,269 @@ CFG_FILE = os.path.join(CFG_DIR, "einstellungen.json")
 
 CATEGORIES = ["Utility;", "Education;", "Game;", "Office;", "AudioVideo;",
               "Graphics;", "Development;", "Network;", "Science;", "System;"]
+
+
+# ======================================================================
+#  SPRACHEN
+#  Neue Sprache: entweder hier einen Block ergänzen, oder (ohne Code-
+#  Änderung) eine Datei lang/<code>.json anlegen – siehe --export-lang.
+#  "_name" ist der Name der Sprache in der Sprache selbst.
+#  Fehlt ein Text, wird Englisch genommen, danach Deutsch.
+# ======================================================================
+TRANSLATIONS = {
+    "de": {
+        "_name": "Deutsch",
+        "language": "Sprache:",
+        # Programm
+        "frm_program": "Programm",
+        "lbl_project": "Projektdatei:",
+        "btn_choose": "Auswählen ...",
+        "lbl_folder": "Ordner:",
+        "lbl_name": "Programmname:",
+        "lbl_icon": "Symbol (PNG):",
+        "lbl_category": "Kategorie:",
+        # Pakete
+        "frm_packages": "Pakete (aus den Importen erkannt, änderbar)",
+        "btn_redetect": "Neu erkennen",
+        "no_file": "Noch keine Datei ausgewählt.",
+        # Optionen
+        "frm_options": "Optionen",
+        "opt_clean": "Komplett neu bauen (Python-Umgebung frisch anlegen)",
+        "opt_strip": "System-Bibliotheken nicht einpacken (läuft auch auf älteren Linux)",
+        "opt_target": "Pakete in der Ausgabe für ältere Systeme wählen (empfohlen)",
+        "opt_integrate": "Beim ersten Start mit Symbol ins Startmenü eintragen",
+        "opt_glibc": "glibc-Prüfung: Build abbrechen, wenn mehr nötig als",
+        "opt_glibc_hint": "(2.17 = fast jedes Linux; PySide6 hebt auf 2.34 an)",
+        # Erweitert
+        "frm_advanced": "Erweitert",
+        "lbl_pyver": "Python-Version:",
+        "lbl_pysrc": "Python-Quelle:",
+        "lbl_data": "Datendateien:",
+        "lbl_collect": "Komplett einpacken:",
+        "lbl_script": "Build-Skript:",
+        # Rust
+        "frm_rust": "Rust-Programm",
+        "lbl_appid": "Kennung (APP_ID):",
+        "lbl_comment": "Beschreibung:",
+        "lbl_rglibc": "Älteste glibc:",
+        "rglibc_hint": "(2.17 = fast jedes Linux, 2.28 = ab Mint 20 / Ubuntu 20.04 / Debian 10)",
+        "lbl_rscript": "Rust-Build-Skript:",
+        # Knöpfe / Status
+        "btn_build": "AppImage bauen",
+        "btn_cancel": "Abbrechen",
+        "btn_dist": "dist-Ordner öffnen",
+        "st_ready": "Bereit",
+        "st_building": "Baue ...",
+        "st_done": "Fertig",
+        "st_cancelled": "Abgebrochen",
+        "st_error": "Fehler (Code {code})",
+        # Dateidialoge
+        "dlg_main": "Python-Hauptdatei oder Cargo.toml wählen",
+        "dlg_icon": "Symbol wählen",
+        "dlg_script": "build_appimage_v2.sh wählen",
+        "dlg_rscript": "build_appimage_rust.sh wählen",
+        "ft_py_or_rust": "Python oder Rust",
+        "ft_python": "Python",
+        "ft_rust": "Rust (Cargo.toml)",
+        "ft_png": "PNG-Bild",
+        "ft_shell": "Shell-Skript",
+        "ft_all": "Alle Dateien",
+        # Analyse Python
+        "an_gui": "Oberfläche: {names}",
+        "an_tk": "Oberfläche: Tkinter (schon in Python enthalten, kein Paket nötig)",
+        "an_no_gui": "Keine Oberflächen-Bibliothek gefunden.",
+        "an_packages": "Erkannte Pakete: {names}",
+        "an_none": "keine",
+        "an_local": "Eigene Module (werden mit eingepackt): {names}",
+        "an_requirements": "requirements.txt gefunden – wird zusätzlich installiert.",
+        "an_hint": "Hinweis: {text}",
+        "an_read_error": "Fehler beim Lesen: {text}",
+        "note_windows": "{name}: nur unter Windows – wird unter Linux nicht gebraucht/geht nicht",
+        "note_gi": "{name}: PyGObject (GTK) – über pip schwierig, besser vermeiden",
+        "note_dbus": "{name}: dbus-python – braucht System-Bibliotheken",
+        "note_multi_gui": "Mehrere Oberflächen-Bibliotheken gefunden: {names} – meist braucht man nur eine.",
+        "note_qt6": "PyQt6/PySide2 sind im Build-Skript nicht besonders berücksichtigt.",
+        # Analyse Rust
+        "ru_bin": "Programmdatei: {bin}    Version: {version}",
+        "ru_appid_found": "APP_ID im Quelltext gefunden ({file}): {appid}",
+        "ru_appid_missing": "Keine APP_ID im Quelltext gefunden – Kennung bitte prüfen "
+                            "(sie muss zur Fenster-Kennung im Programm passen).",
+        "ru_no_icon": "Kein PNG-Symbol gefunden – bitte oben auswählen.",
+        "ru_no_cargo": "WARNUNG: cargo nicht gefunden – Rust ist auf diesem Rechner nicht installiert.",
+        "ru_no_zig": "WARNUNG: cargo-zigbuild fehlt – die glibc-Einstellung wirkt dann nicht. "
+                     "Installieren: cargo install cargo-zigbuild && pip install ziglang",
+        "ru_zig_ok": "cargo-zigbuild vorhanden – baut für die gewählte glibc.",
+        "ru_result": "Ergebnis: dist/{file}",
+        # Meldungen
+        "log_loaded": "Gespeicherte Einstellungen für {name} geladen.",
+        "log_building": "Baue {name} aus {path}",
+        "log_done": "Fertig: {path}",
+        "log_cancelled": "Abgebrochen.",
+        "log_failed": "Build fehlgeschlagen (Code {code}). Siehe Ausgabe oben.",
+        "log_note_lang": "Hinweis: Die Ausgabe der Build-Skripte ist auf Deutsch.",
+        "msg_created": "AppImage erstellt:\n{path}",
+        "msg_failed": "Build fehlgeschlagen. Details stehen in der Ausgabe.",
+        "err_script": "Build-Skript nicht gefunden:\n{path}\n\nUnter 'Erweitert' auswählen.",
+        "err_rscript": "Rust-Build-Skript nicht gefunden:\n{path}\n\nIm Bereich 'Rust-Programm' auswählen.",
+        "err_no_cargo": "cargo wurde nicht gefunden. Ist Rust installiert?",
+        "err_name": "Bitte einen Programmnamen eingeben.",
+        "err_name_appid": "Bitte Programmname und Kennung (APP_ID) eingeben.",
+        "err_icon": "Bitte ein Symbol (PNG-Datei) auswählen.",
+        "err_glibc": "glibc-Grenze bitte als Zahl wie 2.17 eingeben.",
+        "err_start": "Konnte das Build-Skript nicht starten:\n{error}",
+        "err_open": "Ordner konnte nicht geöffnet werden:\n{error}",
+        "ask_quit": "Es läuft noch ein Build. Abbrechen und beenden?",
+    },
+
+    "en": {
+        "_name": "English",
+        "language": "Language:",
+        "frm_program": "Program",
+        "lbl_project": "Project file:",
+        "btn_choose": "Choose ...",
+        "lbl_folder": "Folder:",
+        "lbl_name": "Program name:",
+        "lbl_icon": "Icon (PNG):",
+        "lbl_category": "Category:",
+        "frm_packages": "Packages (detected from imports, editable)",
+        "btn_redetect": "Detect again",
+        "no_file": "No file selected yet.",
+        "frm_options": "Options",
+        "opt_clean": "Clean build (create a fresh Python environment)",
+        "opt_strip": "Do not bundle system libraries (also runs on older Linux)",
+        "opt_target": "Install packages built for older systems (recommended)",
+        "opt_integrate": "Add to the application menu with icon on first start",
+        "opt_glibc": "glibc check: stop the build if it needs more than",
+        "opt_glibc_hint": "(2.17 = almost any Linux; PySide6 raises it to 2.34)",
+        "frm_advanced": "Advanced",
+        "lbl_pyver": "Python version:",
+        "lbl_pysrc": "Python source:",
+        "lbl_data": "Data files:",
+        "lbl_collect": "Collect completely:",
+        "lbl_script": "Build script:",
+        "frm_rust": "Rust program",
+        "lbl_appid": "Identifier (APP_ID):",
+        "lbl_comment": "Description:",
+        "lbl_rglibc": "Oldest glibc:",
+        "rglibc_hint": "(2.17 = almost any Linux, 2.28 = Mint 20 / Ubuntu 20.04 / Debian 10 and newer)",
+        "lbl_rscript": "Rust build script:",
+        "btn_build": "Build AppImage",
+        "btn_cancel": "Cancel",
+        "btn_dist": "Open dist folder",
+        "st_ready": "Ready",
+        "st_building": "Building ...",
+        "st_done": "Done",
+        "st_cancelled": "Cancelled",
+        "st_error": "Error (code {code})",
+        "dlg_main": "Choose Python main file or Cargo.toml",
+        "dlg_icon": "Choose icon",
+        "dlg_script": "Choose build_appimage_v2.sh",
+        "dlg_rscript": "Choose build_appimage_rust.sh",
+        "ft_py_or_rust": "Python or Rust",
+        "ft_python": "Python",
+        "ft_rust": "Rust (Cargo.toml)",
+        "ft_png": "PNG image",
+        "ft_shell": "Shell script",
+        "ft_all": "All files",
+        "an_gui": "GUI toolkit: {names}",
+        "an_tk": "GUI toolkit: Tkinter (included in Python, no package needed)",
+        "an_no_gui": "No GUI library found.",
+        "an_packages": "Detected packages: {names}",
+        "an_none": "none",
+        "an_local": "Own modules (bundled automatically): {names}",
+        "an_requirements": "requirements.txt found – will be installed as well.",
+        "an_hint": "Note: {text}",
+        "an_read_error": "Could not read: {text}",
+        "note_windows": "{name}: Windows only – not needed / not available on Linux",
+        "note_gi": "{name}: PyGObject (GTK) – hard to install via pip, better avoid",
+        "note_dbus": "{name}: dbus-python – needs system libraries",
+        "note_multi_gui": "Several GUI libraries found: {names} – usually only one is needed.",
+        "note_qt6": "PyQt6/PySide2 are not specially handled by the build script.",
+        "ru_bin": "Binary: {bin}    Version: {version}",
+        "ru_appid_found": "APP_ID found in source ({file}): {appid}",
+        "ru_appid_missing": "No APP_ID found in the source – please check the identifier "
+                            "(it must match the window id set by the program).",
+        "ru_no_icon": "No PNG icon found – please choose one above.",
+        "ru_no_cargo": "WARNING: cargo not found – Rust is not installed on this computer.",
+        "ru_no_zig": "WARNING: cargo-zigbuild is missing – the glibc setting will have no effect. "
+                     "Install: cargo install cargo-zigbuild && pip install ziglang",
+        "ru_zig_ok": "cargo-zigbuild found – builds for the selected glibc.",
+        "ru_result": "Result: dist/{file}",
+        "log_loaded": "Loaded saved settings for {name}.",
+        "log_building": "Building {name} from {path}",
+        "log_done": "Done: {path}",
+        "log_cancelled": "Cancelled.",
+        "log_failed": "Build failed (code {code}). See output above.",
+        "log_note_lang": "Note: the build scripts print their output in German.",
+        "msg_created": "AppImage created:\n{path}",
+        "msg_failed": "Build failed. See the output for details.",
+        "err_script": "Build script not found:\n{path}\n\nChoose it under 'Advanced'.",
+        "err_rscript": "Rust build script not found:\n{path}\n\nChoose it in the 'Rust program' section.",
+        "err_no_cargo": "cargo was not found. Is Rust installed?",
+        "err_name": "Please enter a program name.",
+        "err_name_appid": "Please enter a program name and an identifier (APP_ID).",
+        "err_icon": "Please choose an icon (PNG file).",
+        "err_glibc": "Please enter the glibc limit as a number like 2.17.",
+        "err_start": "Could not start the build script:\n{error}",
+        "err_open": "Could not open the folder:\n{error}",
+        "ask_quit": "A build is still running. Cancel it and quit?",
+    },
+}
+
+LANG = "de"
+
+
+def _load_extra_languages():
+    """Zusätzliche Sprachen aus lang/*.json laden (neben dem Programm, im
+    eingepackten Ordner und in ~/.config/AppImageBuilder/lang/)."""
+    folders = [os.path.join(HERE, "lang"), os.path.join(CFG_DIR, "lang")]
+    if not getattr(sys, "frozen", False):
+        folders.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lang"))
+    for folder in folders:
+        if not os.path.isdir(folder):
+            continue
+        for fn in sorted(os.listdir(folder)):
+            if not fn.endswith(".json") or fn.startswith("_"):
+                continue
+            code = fn[:-5].lower()
+            try:
+                with open(os.path.join(folder, fn), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"[lang] {fn}: {e}", file=sys.stderr)
+                continue
+            if isinstance(data, dict):
+                TRANSLATIONS.setdefault(code, {}).update(
+                    {k: v for k, v in data.items() if isinstance(v, str)})
+                TRANSLATIONS[code].setdefault("_name", code)
+
+
+def detect_language(saved=""):
+    """Gespeicherte Sprache, sonst Systemsprache, sonst Englisch."""
+    if saved in TRANSLATIONS:
+        return saved
+    for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
+        val = os.environ.get(var, "")
+        for part in val.split(":"):
+            code = part.split("_")[0].split(".")[0].lower()
+            if code in TRANSLATIONS:
+                return code
+    return "en"
+
+
+def tr(key, **kw):
+    """Text in der aktuellen Sprache (Rückfall: Englisch, dann Deutsch)."""
+    for code in (LANG, "en", "de"):
+        text = TRANSLATIONS.get(code, {}).get(key)
+        if text is not None:
+            break
+    else:
+        text = key
+    try:
+        return text.format(**kw) if kw else text
+    except (KeyError, IndexError, ValueError):
+        return text
+
 
 # ----------------------------------------------------------------------
 #  Import-Name  ->  Paketname bei PyPI (nur wo die Namen verschieden sind)
@@ -94,8 +362,7 @@ WINDOWS_ONLY = {"win32api", "win32con", "win32gui", "win32com", "pywintypes",
                 "winreg", "winsound", "msvcrt", "_winapi", "wmi", "pythoncom"}
 
 # Unter Linux problematisch: braucht System-Bibliotheken, nicht über pip
-SYSTEM_ONLY = {"gi": "PyGObject (GTK) – über pip schwierig, besser vermeiden",
-               "dbus": "dbus-python – braucht System-Bibliotheken"}
+SYSTEM_ONLY = {"gi": "note_gi", "dbus": "note_dbus"}
 
 GUI_TOOLKITS = ("PySide6", "PyQt5", "PyQt6", "PySide2")
 
@@ -173,7 +440,9 @@ def _imports_of(path):
 def analyze(main_path):
     """Wertet die Importe des Hauptprogramms und aller eigenen Module aus,
     die es (auch über Umwege) importiert. Andere .py-Dateien im Ordner,
-    die nicht dazugehören, werden NICHT mitgezählt."""
+    die nicht dazugehören, werden NICHT mitgezählt.
+    Hinweise kommen als (Text-Schlüssel, Werte) zurück, damit sie in jeder
+    Sprache angezeigt werden können."""
     folder = os.path.dirname(main_path)
     local_files = {}
     for entry in os.listdir(folder):
@@ -212,10 +481,10 @@ def analyze(main_path):
     packages, notes = [], []
     for n in sorted(third_party, key=str.lower):
         if n in WINDOWS_ONLY:
-            notes.append(f"{n}: nur unter Windows – wird unter Linux nicht gebraucht/geht nicht")
+            notes.append(("note_windows", {"name": n}))
             continue
         if n in SYSTEM_ONLY:
-            notes.append(f"{n}: {SYSTEM_ONLY[n]}")
+            notes.append((SYSTEM_ONLY[n], {"name": n}))
             continue
         pkg = BELONGS_TO.get(n) or PYPI_NAMES.get(n, n)
         if pkg not in packages:
@@ -223,10 +492,9 @@ def analyze(main_path):
 
     toolkits = [p for p in packages if p in GUI_TOOLKITS]
     if len(toolkits) > 1:
-        notes.append("Mehrere Oberflächen-Bibliotheken gefunden: " + ", ".join(toolkits)
-                     + " – meist braucht man nur eine.")
+        notes.append(("note_multi_gui", {"names": ", ".join(toolkits)}))
     if "PyQt6" in packages or "PySide2" in packages:
-        notes.append("PyQt6/PySide2 sind im Build-Skript nicht besonders berücksichtigt.")
+        notes.append(("note_qt6", {}))
 
     # GUI-Bibliothek zuerst, Rest alphabetisch
     packages.sort(key=lambda p: (p not in GUI_TOOLKITS, p.lower()))
@@ -249,7 +517,6 @@ def find_icon(folder, name):
             return p
     pngs = sorted(f for f in os.listdir(folder) if f.lower().endswith(".png"))
     return os.path.join(folder, pngs[0]) if pngs else ""
-
 
 
 # ----------------------------------------------------------------------
@@ -347,6 +614,7 @@ def analyze_rust(cargo_path):
         "has_zigbuild": bool(shutil.which("cargo-zigbuild")),
     }
 
+
 # ----------------------------------------------------------------------
 #  Einstellungen merken (pro Projekt-Datei)
 # ----------------------------------------------------------------------
@@ -373,14 +641,17 @@ def save_cfg(data):
 # ----------------------------------------------------------------------
 class BuilderApp:
     def __init__(self, root):
+        global LANG
         self.root = root
         self.cfg = load_cfg()
+        LANG = detect_language(self.cfg.get("_lang", ""))
         self.proc = None
         self.q = queue.Queue()
         self.main_path = ""
         self.mode = "python"          # "python" oder "rust"
         self.rust_info = {}
         self.expected_out = ""
+        self.status_key = ("st_ready", {})
 
         root.title(APP_TITLE)
         root.geometry("900x960")
@@ -394,31 +665,43 @@ class BuilderApp:
         pad = {"padx": 6, "pady": 3}
         main = ttk.Frame(self.root, padding=10)
         main.pack(fill="both", expand=True)
+        self.main_frame = main
+
+        # --- Sprachauswahl ---
+        lr = ttk.Frame(main)
+        lr.pack(fill="x", pady=(0, 4))
+        self.lang_codes = sorted(TRANSLATIONS, key=lambda c: TRANSLATIONS[c].get("_name", c).lower())
+        names = [TRANSLATIONS[c].get("_name", c) for c in self.lang_codes]
+        self.v_lang = tk.StringVar(value=TRANSLATIONS[LANG].get("_name", LANG))
+        cb = ttk.Combobox(lr, textvariable=self.v_lang, values=names, state="readonly", width=14)
+        cb.pack(side="right")
+        cb.bind("<<ComboboxSelected>>", self._on_lang_selected)
+        ttk.Label(lr, text=tr("language")).pack(side="right", padx=6)
 
         # --- Programm ---
-        f1 = ttk.LabelFrame(main, text="Programm", padding=8)
+        f1 = ttk.LabelFrame(main, text=tr("frm_program"), padding=8)
         f1.pack(fill="x")
         f1.columnconfigure(1, weight=1)
 
-        ttk.Label(f1, text="Projektdatei:").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Label(f1, text=tr("lbl_project")).grid(row=0, column=0, sticky="w", **pad)
         self.v_main = tk.StringVar()
         ttk.Entry(f1, textvariable=self.v_main, state="readonly").grid(row=0, column=1, sticky="ew", **pad)
-        ttk.Button(f1, text="Auswählen ...", command=self.choose_main).grid(row=0, column=2, **pad)
+        ttk.Button(f1, text=tr("btn_choose"), command=self.choose_main).grid(row=0, column=2, **pad)
 
-        ttk.Label(f1, text="Ordner:").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(f1, text=tr("lbl_folder")).grid(row=1, column=0, sticky="w", **pad)
         self.v_folder = tk.StringVar(value="–")
         ttk.Label(f1, textvariable=self.v_folder, foreground="#555").grid(row=1, column=1, columnspan=2, sticky="w", **pad)
 
-        ttk.Label(f1, text="Programmname:").grid(row=2, column=0, sticky="w", **pad)
+        ttk.Label(f1, text=tr("lbl_name")).grid(row=2, column=0, sticky="w", **pad)
         self.v_name = tk.StringVar()
         ttk.Entry(f1, textvariable=self.v_name).grid(row=2, column=1, sticky="ew", **pad)
 
-        ttk.Label(f1, text="Symbol (PNG):").grid(row=3, column=0, sticky="w", **pad)
+        ttk.Label(f1, text=tr("lbl_icon")).grid(row=3, column=0, sticky="w", **pad)
         self.v_icon = tk.StringVar()
         ttk.Entry(f1, textvariable=self.v_icon).grid(row=3, column=1, sticky="ew", **pad)
         ttk.Button(f1, text="...", width=4, command=self.choose_icon).grid(row=3, column=2, **pad)
 
-        ttk.Label(f1, text="Kategorie:").grid(row=4, column=0, sticky="w", **pad)
+        ttk.Label(f1, text=tr("lbl_category")).grid(row=4, column=0, sticky="w", **pad)
         self.v_cat = tk.StringVar(value="Utility;")
         ttk.Combobox(f1, textvariable=self.v_cat, values=CATEGORIES, width=18).grid(row=4, column=1, sticky="w", **pad)
 
@@ -427,19 +710,19 @@ class BuilderApp:
         self.area.pack(fill="x")
 
         # --- Pakete ---
-        f2 = ttk.LabelFrame(self.area, text="Pakete (aus den Importen erkannt, änderbar)", padding=8)
+        f2 = ttk.LabelFrame(self.area, text=tr("frm_packages"), padding=8)
         f2.pack(fill="x", pady=(8, 0))
         f2.columnconfigure(1, weight=1)
         ttk.Label(f2, text="PACKAGES:").grid(row=0, column=0, sticky="w", **pad)
         self.v_packages = tk.StringVar()
         ttk.Entry(f2, textvariable=self.v_packages).grid(row=0, column=1, sticky="ew", **pad)
-        ttk.Button(f2, text="Neu erkennen", command=self.reanalyze).grid(row=0, column=2, **pad)
-        self.lbl_analysis = ttk.Label(f2, text="Noch keine Datei ausgewählt.", foreground="#555",
+        ttk.Button(f2, text=tr("btn_redetect"), command=self.reanalyze).grid(row=0, column=2, **pad)
+        self.lbl_analysis = ttk.Label(f2, text=tr("no_file"), foreground="#555",
                                       justify="left", wraplength=820)
         self.lbl_analysis.grid(row=1, column=0, columnspan=3, sticky="w", **pad)
 
         # --- Optionen ---
-        f3 = ttk.LabelFrame(self.area, text="Optionen", padding=8)
+        f3 = ttk.LabelFrame(self.area, text=tr("frm_options"), padding=8)
         f3.pack(fill="x", pady=(8, 0))
         self.v_clean = tk.BooleanVar(value=True)
         self.v_strip = tk.BooleanVar(value=True)
@@ -447,39 +730,39 @@ class BuilderApp:
         self.v_integrate = tk.BooleanVar(value=True)
         self.v_glibc_on = tk.BooleanVar(value=True)
         self.v_glibc = tk.StringVar(value="2.17")
-        ttk.Checkbutton(f3, text="Komplett neu bauen (Python-Umgebung frisch anlegen)",
+        ttk.Checkbutton(f3, text=tr("opt_clean"),
                         variable=self.v_clean).grid(row=0, column=0, columnspan=3, sticky="w")
-        ttk.Checkbutton(f3, text="System-Bibliotheken nicht einpacken (läuft auch auf älteren Linux)",
+        ttk.Checkbutton(f3, text=tr("opt_strip"),
                         variable=self.v_strip).grid(row=1, column=0, columnspan=3, sticky="w")
-        ttk.Checkbutton(f3, text="Pakete in der Ausgabe für ältere Systeme wählen (empfohlen)",
+        ttk.Checkbutton(f3, text=tr("opt_target"),
                         variable=self.v_target).grid(row=2, column=0, columnspan=3, sticky="w")
-        ttk.Checkbutton(f3, text="Beim ersten Start mit Symbol ins Startmenü eintragen",
+        ttk.Checkbutton(f3, text=tr("opt_integrate"),
                         variable=self.v_integrate).grid(row=3, column=0, columnspan=3, sticky="w")
-        ttk.Checkbutton(f3, text="glibc-Prüfung: Build abbrechen, wenn mehr nötig als",
+        ttk.Checkbutton(f3, text=tr("opt_glibc"),
                         variable=self.v_glibc_on).grid(row=4, column=0, sticky="w")
         ttk.Entry(f3, textvariable=self.v_glibc, width=6).grid(row=4, column=1, sticky="w", padx=4)
-        ttk.Label(f3, text="(2.17 = fast jedes Linux; PySide6 hebt auf 2.34 an)",
+        ttk.Label(f3, text=tr("opt_glibc_hint"),
                   foreground="#555").grid(row=4, column=2, sticky="w")
 
         # --- Erweitert ---
-        f4 = ttk.LabelFrame(self.area, text="Erweitert", padding=8)
+        f4 = ttk.LabelFrame(self.area, text=tr("frm_advanced"), padding=8)
         f4.pack(fill="x", pady=(8, 0))
         f4.columnconfigure(1, weight=1)
-        ttk.Label(f4, text="Python-Version:").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Label(f4, text=tr("lbl_pyver")).grid(row=0, column=0, sticky="w", **pad)
         self.v_pyver = tk.StringVar(value="3.11")
         ttk.Combobox(f4, textvariable=self.v_pyver, values=["3.10", "3.11", "3.12", "3.13"],
                      width=8).grid(row=0, column=1, sticky="w", **pad)
-        ttk.Label(f4, text="Python-Quelle:").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(f4, text=tr("lbl_pysrc")).grid(row=1, column=0, sticky="w", **pad)
         self.v_pysrc = tk.StringVar(value="auto")
         ttk.Combobox(f4, textvariable=self.v_pysrc, values=["auto", "conda", "uv"], state="readonly",
                      width=8).grid(row=1, column=1, sticky="w", **pad)
-        ttk.Label(f4, text="Datendateien:").grid(row=2, column=0, sticky="w", **pad)
+        ttk.Label(f4, text=tr("lbl_data")).grid(row=2, column=0, sticky="w", **pad)
         self.v_data = tk.StringVar(value="*.png *.jpg *.jpeg *.gif *.svg *.ico *.wav *.mp3 *.ogg *.json *.ttf *.otf")
         ttk.Entry(f4, textvariable=self.v_data).grid(row=2, column=1, columnspan=2, sticky="ew", **pad)
-        ttk.Label(f4, text="Komplett einpacken:").grid(row=3, column=0, sticky="w", **pad)
+        ttk.Label(f4, text=tr("lbl_collect")).grid(row=3, column=0, sticky="w", **pad)
         self.v_collect = tk.StringVar()
         ttk.Entry(f4, textvariable=self.v_collect).grid(row=3, column=1, columnspan=2, sticky="ew", **pad)
-        ttk.Label(f4, text="Build-Skript:").grid(row=4, column=0, sticky="w", **pad)
+        ttk.Label(f4, text=tr("lbl_script")).grid(row=4, column=0, sticky="w", **pad)
         self.v_script = tk.StringVar(value=_existing_script(self.cfg.get("_script"), DEFAULT_SCRIPT))
         ttk.Entry(f4, textvariable=self.v_script).grid(row=4, column=1, sticky="ew", **pad)
         ttk.Button(f4, text="...", width=4, command=self.choose_script).grid(row=4, column=2, **pad)
@@ -487,27 +770,26 @@ class BuilderApp:
         self.py_frames = [f2, f3, f4]
 
         # --- Rust (nur sichtbar, wenn eine Cargo.toml gewählt ist) ---
-        fr = ttk.LabelFrame(self.area, text="Rust-Programm", padding=8)
+        fr = ttk.LabelFrame(self.area, text=tr("frm_rust"), padding=8)
         fr.columnconfigure(1, weight=1)
         self.rust_frame = fr
-        ttk.Label(fr, text="Kennung (APP_ID):").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Label(fr, text=tr("lbl_appid")).grid(row=0, column=0, sticky="w", **pad)
         self.v_r_appid = tk.StringVar()
         ttk.Entry(fr, textvariable=self.v_r_appid).grid(row=0, column=1, columnspan=2, sticky="ew", **pad)
-        ttk.Label(fr, text="Beschreibung:").grid(row=1, column=0, sticky="w", **pad)
+        ttk.Label(fr, text=tr("lbl_comment")).grid(row=1, column=0, sticky="w", **pad)
         self.v_r_comment = tk.StringVar()
         ttk.Entry(fr, textvariable=self.v_r_comment).grid(row=1, column=1, columnspan=2, sticky="ew", **pad)
-        ttk.Label(fr, text="Älteste glibc:").grid(row=2, column=0, sticky="w", **pad)
+        ttk.Label(fr, text=tr("lbl_rglibc")).grid(row=2, column=0, sticky="w", **pad)
         self.v_r_glibc = tk.StringVar(value="2.28")
         gl = ttk.Frame(fr)
         gl.grid(row=2, column=1, columnspan=2, sticky="w", **pad)
         ttk.Combobox(gl, textvariable=self.v_r_glibc, values=GLIBC_CHOICES, width=8).pack(side="left")
-        ttk.Label(gl, text="  (2.17 = fast jedes Linux, 2.28 = ab Mint 20 / Ubuntu 20.04 / Debian 10)",
-                  foreground="#555").pack(side="left")
-        ttk.Checkbutton(fr, text="Beim ersten Start mit Symbol ins Startmenü eintragen",
+        ttk.Label(gl, text="  " + tr("rglibc_hint"), foreground="#555").pack(side="left")
+        ttk.Checkbutton(fr, text=tr("opt_integrate"),
                         variable=self.v_integrate).grid(row=3, column=0, columnspan=3, sticky="w", **pad)
         self.lbl_rust = ttk.Label(fr, text="", foreground="#555", justify="left", wraplength=820)
         self.lbl_rust.grid(row=4, column=0, columnspan=3, sticky="w", **pad)
-        ttk.Label(fr, text="Rust-Build-Skript:").grid(row=5, column=0, sticky="w", **pad)
+        ttk.Label(fr, text=tr("lbl_rscript")).grid(row=5, column=0, sticky="w", **pad)
         self.v_rscript = tk.StringVar(value=_existing_script(self.cfg.get("_rust_script"), DEFAULT_RUST_SCRIPT))
         ttk.Entry(fr, textvariable=self.v_rscript).grid(row=5, column=1, sticky="ew", **pad)
         ttk.Button(fr, text="...", width=4, command=self.choose_rscript).grid(row=5, column=2, **pad)
@@ -515,15 +797,15 @@ class BuilderApp:
         # --- Knöpfe ---
         fb = ttk.Frame(main)
         fb.pack(fill="x", pady=8)
-        self.btn_build = ttk.Button(fb, text="AppImage bauen", command=self.start_build, state="disabled")
+        self.btn_build = ttk.Button(fb, text=tr("btn_build"), command=self.start_build, state="disabled")
         self.btn_build.pack(side="left", padx=3)
-        self.btn_cancel = ttk.Button(fb, text="Abbrechen", command=self.cancel_build, state="disabled")
+        self.btn_cancel = ttk.Button(fb, text=tr("btn_cancel"), command=self.cancel_build, state="disabled")
         self.btn_cancel.pack(side="left", padx=3)
-        self.btn_dist = ttk.Button(fb, text="dist-Ordner öffnen", command=self.open_dist, state="disabled")
+        self.btn_dist = ttk.Button(fb, text=tr("btn_dist"), command=self.open_dist, state="disabled")
         self.btn_dist.pack(side="left", padx=3)
         self.progress = ttk.Progressbar(fb, mode="indeterminate", length=180)
         self.progress.pack(side="right", padx=3)
-        self.v_status = tk.StringVar(value="Bereit")
+        self.v_status = tk.StringVar(value=tr(self.status_key[0], **self.status_key[1]))
         ttk.Label(fb, textvariable=self.v_status).pack(side="right", padx=8)
 
         # --- Ausgabe ---
@@ -540,6 +822,65 @@ class BuilderApp:
         self.log.tag_configure("ok", foreground="#7ee787")
         self.log.tag_configure("head", foreground="#79c0ff")
 
+    # ---------- Sprache wechseln ----------
+    def _on_lang_selected(self, _event=None):
+        name = self.v_lang.get()
+        code = next((c for c in self.lang_codes if TRANSLATIONS[c].get("_name", c) == name), "en")
+        self.change_language(code)
+
+    def change_language(self, code):
+        """Oberfläche in einer anderen Sprache neu aufbauen – alle Eingaben,
+        die Ausgabe und ein laufender Build bleiben erhalten."""
+        global LANG
+        if code == LANG or code not in TRANSLATIONS:
+            return
+        LANG = code
+        self.cfg["_lang"] = code
+        save_cfg(self.cfg)
+
+        state = self._collect()
+        scripts = (self.v_script.get(), self.v_rscript.get())
+        main_info = (self.v_main.get(), self.v_folder.get())
+        log_dump = self.log.dump("1.0", "end-1c", text=True, tag=True)
+        mode, running = self.mode, self.proc is not None
+
+        self.main_frame.destroy()
+        self._build_ui()
+
+        self._apply(state)
+        self.v_script.set(scripts[0]); self.v_rscript.set(scripts[1])
+        self.v_main.set(main_info[0]); self.v_folder.set(main_info[1])
+        self._restore_log(log_dump)
+        self.set_mode(mode)
+        if self.main_path:
+            if mode == "rust":
+                self.show_rust_info()
+            else:
+                self.reanalyze(keep_packages=True)
+            self.btn_dist.config(state="normal")
+            self.btn_build.config(state="disabled" if running else "normal")
+        if running:
+            self.btn_cancel.config(state="normal")
+            self.progress.start(12)
+
+    def _restore_log(self, dump):
+        """Ausgabe samt Farben in das neue Textfeld übernehmen."""
+        tags = set()
+        self.log.configure(state="normal")
+        for kind, value, _index in dump:
+            if kind == "tagon" and value != "sel":
+                tags.add(value)
+            elif kind == "tagoff":
+                tags.discard(value)
+            elif kind == "text":
+                self.log.insert("end", value, tuple(tags))
+        self.log.see("end")
+        self.log.configure(state="disabled")
+
+    def _set_status(self, key, **kw):
+        self.status_key = (key, kw)
+        self.v_status.set(tr(key, **kw))
+
     # ---------- Hilfen ----------
     def _start_dir(self):
         d = self.cfg.get("_last_dir", "")
@@ -550,21 +891,27 @@ class BuilderApp:
     def _log(self, text, tag=None):
         # Farbige Emojis aus der Build-Ausgabe ersetzen: Tk kann sonst auf
         # älteren Systemen (libXft < 2.3.5) abstürzen.
-        text = (text.replace("\u2705", "[OK]").replace("\u274c", "[X]")
-                    .replace("\u26a0\ufe0f", "[!]").replace("\u26a0", "[!]"))
+        text = (text.replace("✅", "[OK]").replace("❌", "[X]")
+                    .replace("⚠️", "[!]").replace("⚠", "[!]"))
         text = "".join(ch if ord(ch) < 0x1F000 else "?" for ch in text)
         self.log.configure(state="normal")
         self.log.insert("end", text, tag)
         self.log.see("end")
         self.log.configure(state="disabled")
 
+    def _clear_log(self):
+        self.log.configure(state="normal")
+        self.log.delete("1.0", "end")
+        self.log.configure(state="disabled")
+
     # ---------- Auswahl ----------
     def choose_main(self):
-        p = filedialog.askopenfilename(title="Python-Hauptdatei oder Cargo.toml wählen",
+        p = filedialog.askopenfilename(title=tr("dlg_main"),
                                        initialdir=self._start_dir(),
-                                       filetypes=[("Python oder Rust", "*.py *.pyw Cargo.toml"),
-                                                  ("Python", "*.py *.pyw"), ("Rust (Cargo.toml)", "Cargo.toml"),
-                                                  ("Alle Dateien", "*")])
+                                       filetypes=[(tr("ft_py_or_rust"), "*.py *.pyw Cargo.toml"),
+                                                  (tr("ft_python"), "*.py *.pyw"),
+                                                  (tr("ft_rust"), "Cargo.toml"),
+                                                  (tr("ft_all"), "*")])
         if not p:
             return
         p = os.path.abspath(p)
@@ -589,6 +936,8 @@ class BuilderApp:
         name = os.path.splitext(os.path.basename(p))[0]
         self.v_main.set(os.path.basename(p))
         self.v_folder.set(folder)
+        if not self.proc:                # alte Meldungen eines anderen Projekts entfernen
+            self._clear_log()
 
         if os.path.basename(p) == "Cargo.toml":
             self.set_mode("rust")
@@ -596,7 +945,7 @@ class BuilderApp:
             saved = self.cfg.get(p)
             if saved:
                 self._apply(saved)
-                self._log(f"Gespeicherte Einstellungen für {os.path.basename(folder)} geladen.\n", "head")
+                self._log(tr("log_loaded", name=os.path.basename(folder)) + "\n", "head")
             else:
                 self.v_name.set(r["bin"])
                 self.v_icon.set(r["icon"])
@@ -615,7 +964,7 @@ class BuilderApp:
         saved = self.cfg.get(p)
         if saved:                                   # früher schon benutzt -> Werte wiederherstellen
             self._apply(saved)
-            self._log(f"Gespeicherte Einstellungen für {os.path.basename(p)} geladen.\n", "head")
+            self._log(tr("log_loaded", name=os.path.basename(p)) + "\n", "head")
         else:
             self.v_name.set(name)
             self.v_icon.set(find_icon(folder, name))
@@ -625,28 +974,26 @@ class BuilderApp:
 
     def show_rust_info(self):
         r = self.rust_info
-        lines = [f"Programmdatei: {r['bin']}    Version: {r['version']}"]
+        lines = [tr("ru_bin", bin=r["bin"], version=r["version"])]
         if r["app_id"]:
-            lines.append(f"APP_ID im Quelltext gefunden ({r['app_id_file']}): {r['app_id']}")
+            lines.append(tr("ru_appid_found", file=r["app_id_file"], appid=r["app_id"]))
         else:
-            lines.append("Keine APP_ID im Quelltext gefunden – Kennung bitte prüfen "
-                         "(sie muss zur Fenster-Kennung im Programm passen).")
+            lines.append(tr("ru_appid_missing"))
         if not r["icon"]:
-            lines.append("Kein PNG-Symbol gefunden – bitte oben auswählen.")
+            lines.append(tr("ru_no_icon"))
         if not r["has_cargo"]:
-            lines.append("WARNUNG: cargo nicht gefunden – Rust ist auf diesem Rechner nicht installiert.")
+            lines.append(tr("ru_no_cargo"))
         elif not r["has_zigbuild"]:
-            lines.append("WARNUNG: cargo-zigbuild fehlt – die glibc-Einstellung wirkt dann nicht. "
-                         "Installieren: cargo install cargo-zigbuild && pip install ziglang")
+            lines.append(tr("ru_no_zig"))
         else:
-            lines.append("cargo-zigbuild vorhanden – baut für die gewählte glibc.")
-        lines.append(f"Ergebnis: dist/{r['bin']}-{r['version']}-x86_64.AppImage")
+            lines.append(tr("ru_zig_ok"))
+        lines.append(tr("ru_result", file=f"{r['bin']}-{r['version']}-x86_64.AppImage"))
         self.lbl_rust.config(text="\n".join(lines))
 
     def choose_rscript(self):
         start = os.path.dirname(self.v_rscript.get()) if self.v_rscript.get() else HERE
-        p = filedialog.askopenfilename(title="build_appimage_rust.sh wählen", initialdir=start,
-                                       filetypes=[("Shell-Skript", "*.sh"), ("Alle Dateien", "*")])
+        p = filedialog.askopenfilename(title=tr("dlg_rscript"), initialdir=start,
+                                       filetypes=[(tr("ft_shell"), "*.sh"), (tr("ft_all"), "*")])
         if p:
             self.v_rscript.set(os.path.abspath(p))
             self.cfg["_rust_script"] = self.v_rscript.get()
@@ -667,33 +1014,33 @@ class BuilderApp:
         lines = []
         gui = [p for p in r["packages"] if p in GUI_TOOLKITS]
         if gui:
-            lines.append("Oberfläche: " + ", ".join(gui))
+            lines.append(tr("an_gui", names=", ".join(gui)))
         elif r["uses_tk"]:
-            lines.append("Oberfläche: Tkinter (schon in Python enthalten, kein Paket nötig)")
+            lines.append(tr("an_tk"))
         else:
-            lines.append("Keine Oberflächen-Bibliothek gefunden.")
-        lines.append("Erkannte Pakete: " + (", ".join(r["packages"]) if r["packages"] else "keine"))
+            lines.append(tr("an_no_gui"))
+        lines.append(tr("an_packages", names=", ".join(r["packages"]) if r["packages"] else tr("an_none")))
         if r["local"]:
-            lines.append("Eigene Module (werden mit eingepackt): " + ", ".join(r["local"]))
+            lines.append(tr("an_local", names=", ".join(r["local"])))
         if r["has_requirements"]:
-            lines.append("requirements.txt gefunden – wird zusätzlich installiert.")
-        for n in r["notes"]:
-            lines.append("Hinweis: " + n)
+            lines.append(tr("an_requirements"))
+        for key, kw in r["notes"]:
+            lines.append(tr("an_hint", text=tr(key, **kw)))
         for e in r["errors"]:
-            lines.append("Fehler beim Lesen: " + e)
+            lines.append(tr("an_read_error", text=e))
         self.lbl_analysis.config(text="\n".join(lines))
 
     def choose_icon(self):
         start = os.path.dirname(self.v_icon.get()) if self.v_icon.get() else self._start_dir()
-        p = filedialog.askopenfilename(title="Symbol wählen", initialdir=start,
-                                       filetypes=[("PNG-Bild", "*.png"), ("Alle Dateien", "*")])
+        p = filedialog.askopenfilename(title=tr("dlg_icon"), initialdir=start,
+                                       filetypes=[(tr("ft_png"), "*.png"), (tr("ft_all"), "*")])
         if p:
             self.v_icon.set(os.path.abspath(p))
 
     def choose_script(self):
         start = os.path.dirname(self.v_script.get()) if self.v_script.get() else HERE
-        p = filedialog.askopenfilename(title="build_appimage_v2.sh wählen", initialdir=start,
-                                       filetypes=[("Shell-Skript", "*.sh"), ("Alle Dateien", "*")])
+        p = filedialog.askopenfilename(title=tr("dlg_script"), initialdir=start,
+                                       filetypes=[(tr("ft_shell"), "*.sh"), (tr("ft_all"), "*")])
         if p:
             self.v_script.set(os.path.abspath(p))
             self.cfg["_script"] = self.v_script.get()
@@ -740,20 +1087,19 @@ class BuilderApp:
             return
         script = self.v_script.get().strip()
         if not os.path.isfile(script):
-            messagebox.showerror(APP_TITLE, f"Build-Skript nicht gefunden:\n{script}\n\n"
-                                 "Unter 'Erweitert' auswählen.")
+            messagebox.showerror(APP_TITLE, tr("err_script", path=script))
             return
         if not s["name"]:
-            messagebox.showerror(APP_TITLE, "Bitte einen Programmnamen eingeben.")
+            messagebox.showerror(APP_TITLE, tr("err_name"))
             return
         if not os.path.isfile(s["icon"]):
-            messagebox.showerror(APP_TITLE, "Bitte ein Symbol (PNG-Datei) auswählen.")
+            messagebox.showerror(APP_TITLE, tr("err_icon"))
             return
         if s["glibc_on"]:
             try:
                 tuple(int(x) for x in s["glibc"].split("."))
             except ValueError:
-                messagebox.showerror(APP_TITLE, "glibc-Grenze bitte als Zahl wie 2.17 eingeben.")
+                messagebox.showerror(APP_TITLE, tr("err_glibc"))
                 return
 
         self.cfg[self.main_path] = s
@@ -785,17 +1131,16 @@ class BuilderApp:
     def _rust_job(self, s):
         script = self.v_rscript.get().strip()
         if not os.path.isfile(script):
-            messagebox.showerror(APP_TITLE, f"Rust-Build-Skript nicht gefunden:\n{script}\n\n"
-                                 "Im Bereich 'Rust-Programm' auswählen.")
+            messagebox.showerror(APP_TITLE, tr("err_rscript", path=script))
             return None
         if not self.rust_info.get("has_cargo"):
-            messagebox.showerror(APP_TITLE, "cargo wurde nicht gefunden. Ist Rust installiert?")
+            messagebox.showerror(APP_TITLE, tr("err_no_cargo"))
             return None
         if not s["name"] or not s["r_appid"]:
-            messagebox.showerror(APP_TITLE, "Bitte Programmname und Kennung (APP_ID) eingeben.")
+            messagebox.showerror(APP_TITLE, tr("err_name_appid"))
             return None
         if not os.path.isfile(s["icon"]):
-            messagebox.showerror(APP_TITLE, "Bitte ein Symbol (PNG-Datei) auswählen.")
+            messagebox.showerror(APP_TITLE, tr("err_icon"))
             return None
         self.cfg[self.main_path] = s
         save_cfg(self.cfg)
@@ -814,9 +1159,12 @@ class BuilderApp:
         return script, env, f"Rust, glibc {s['r_glibc']}, APP_ID {s['r_appid']}"
 
     def _run(self, script, env, s, info):
-        self.log.configure(state="normal"); self.log.delete("1.0", "end"); self.log.configure(state="disabled")
-        self._log(f"Baue {s['name']} aus {self.main_path}\n", "head")
-        self._log(f"{info}\n\n", "head")
+        self._clear_log()
+        self._log(tr("log_building", name=s["name"], path=self.main_path) + "\n", "head")
+        self._log(f"{info}\n", "head")
+        if LANG != "de":
+            self._log(tr("log_note_lang") + "\n", "head")
+        self._log("\n")
         try:
             self.proc = subprocess.Popen(["bash", script], env=env, cwd=os.path.dirname(self.main_path),
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -824,12 +1172,12 @@ class BuilderApp:
                                          start_new_session=True)
         except Exception as e:
             self.proc = None
-            messagebox.showerror(APP_TITLE, f"Konnte das Build-Skript nicht starten:\n{e}")
+            messagebox.showerror(APP_TITLE, tr("err_start", error=e))
             return
         threading.Thread(target=self._reader, args=(self.proc,), daemon=True).start()
         self.btn_build.config(state="disabled")
         self.btn_cancel.config(state="normal")
-        self.v_status.set("Baue ...")
+        self._set_status("st_building")
         self.progress.start(12)
 
     def _reader(self, proc):
@@ -865,16 +1213,16 @@ class BuilderApp:
         self.btn_cancel.config(state="disabled")
         out = self.expected_out
         if code == 0:
-            self.v_status.set("Fertig")
-            self._log(f"\nFertig: {out}\n", "ok")
-            messagebox.showinfo(APP_TITLE, f"AppImage erstellt:\n{out}")
+            self._set_status("st_done")
+            self._log("\n" + tr("log_done", path=out) + "\n", "ok")
+            messagebox.showinfo(APP_TITLE, tr("msg_created", path=out))
         elif code in (-signal.SIGTERM, -signal.SIGKILL, 143, 137):
-            self.v_status.set("Abgebrochen")
-            self._log("\nAbgebrochen.\n", "err")
+            self._set_status("st_cancelled")
+            self._log("\n" + tr("log_cancelled") + "\n", "err")
         else:
-            self.v_status.set(f"Fehler (Code {code})")
-            self._log(f"\nBuild fehlgeschlagen (Code {code}). Siehe Ausgabe oben.\n", "err")
-            messagebox.showerror(APP_TITLE, "Build fehlgeschlagen. Details stehen in der Ausgabe.")
+            self._set_status("st_error", code=code)
+            self._log("\n" + tr("log_failed", code=code) + "\n", "err")
+            messagebox.showerror(APP_TITLE, tr("msg_failed"))
 
     def cancel_build(self):
         if self.proc:
@@ -894,11 +1242,11 @@ class BuilderApp:
                              cwd=os.path.expanduser("~"),
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:
-            messagebox.showerror(APP_TITLE, f"Ordner konnte nicht geöffnet werden:\n{e}")
+            messagebox.showerror(APP_TITLE, tr("err_open", error=e))
 
     def _on_close(self):
         if self.proc:
-            if not messagebox.askyesno(APP_TITLE, "Es läuft noch ein Build. Abbrechen und beenden?"):
+            if not messagebox.askyesno(APP_TITLE, tr("ask_quit")):
                 return
             self.cancel_build()
         if self.main_path:
@@ -908,6 +1256,18 @@ class BuilderApp:
 
 
 def main():
+    _load_extra_languages()
+
+    # Vorlage für eine neue Sprache ausgeben:
+    #   python3 AppImage_Builder.py --export-lang en > lang/es.json
+    if "--export-lang" in sys.argv:
+        i = sys.argv.index("--export-lang")
+        code = sys.argv[i + 1] if i + 1 < len(sys.argv) else "en"
+        data = dict(TRANSLATIONS.get(code, TRANSLATIONS["en"]))
+        data["_name"] = "NAME DER SPRACHE / LANGUAGE NAME"
+        print(json.dumps(data, indent=2, ensure_ascii=False))
+        return
+
     root = tk.Tk()
     app = BuilderApp(root)
     # Datei beim Start mitgegeben (z. B. "Öffnen mit" oder im Terminal)?
