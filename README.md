@@ -1,82 +1,84 @@
 # AppImage Builder
 
-**Python- und Rust-Programme mit wenigen Klicks in ein AppImage verwandeln – mit grafischer Oberfläche, automatischer Paketerkennung und Startmenü-Eintrag.**
+**English** | [Deutsch](README.de.md)
+
+**Turn Python and Rust programs into an AppImage in a few clicks – with a graphical interface, automatic package detection and an application menu entry.**
 
 ![AppImage Builder](screenshot.png)
 
-Der AppImage Builder ist eine Oberfläche (Tkinter) für zwei Build-Skripte:
+AppImage Builder is a graphical front end (Tkinter) for two build scripts:
 
-- `build_appimage_v2.sh` – für **Python-Programme** (Tkinter, PyQt5, PySide6 …)
-- `build_appimage_rust.sh` – für **Rust-Programme** (Cargo)
+- `build_appimage_v2.sh` – for **Python programs** (Tkinter, PyQt5, PySide6 …)
+- `build_appimage_rust.sh` – for **Rust programs** (Cargo)
 
-Datei auswählen, Haken setzen, „AppImage bauen“ klicken – fertig ist eine einzelne Datei, die auf vielen Linux-Systemen ohne Installation läuft.
+Pick a file, tick a few boxes, click "Build AppImage" – and you get a single file that runs on many Linux systems without installation.
 
 ---
 
-## Inhalt
+## Contents
 
-- [Funktionen](#funktionen)
-- [Voraussetzungen](#voraussetzungen)
+- [Features](#features)
+- [Requirements](#requirements)
 - [Installation](#installation)
-- [Benutzung – Python](#benutzung--python)
-- [Benutzung – Rust](#benutzung--rust)
-- [Alle Einstellungen erklärt](#alle-einstellungen-erklärt)
-- [Was passiert beim Bauen?](#was-passiert-beim-bauen)
-- [Kompatibilität (glibc)](#kompatibilität-glibc)
-- [Startmenü und Symbol](#startmenü-und-symbol)
-- [Sprachen](#sprachen)
-- [Den Builder selbst als AppImage bauen](#den-builder-selbst-als-appimage-bauen)
-- [Skripte ohne Oberfläche benutzen](#skripte-ohne-oberfläche-benutzen)
-- [Testen auf älteren Systemen](#testen-auf-älteren-systemen)
-- [Fehlerbehebung](#fehlerbehebung)
-- [Dateien im Projekt](#dateien-im-projekt)
-- [Lizenz](#lizenz)
+- [Usage – Python](#usage--python)
+- [Usage – Rust](#usage--rust)
+- [All settings explained](#all-settings-explained)
+- [What happens during a build?](#what-happens-during-a-build)
+- [Compatibility (glibc)](#compatibility-glibc)
+- [Application menu and icon](#application-menu-and-icon)
+- [Languages](#languages)
+- [Building the builder itself as an AppImage](#building-the-builder-itself-as-an-appimage)
+- [Using the scripts without the GUI](#using-the-scripts-without-the-gui)
+- [Testing on older systems](#testing-on-older-systems)
+- [Troubleshooting](#troubleshooting)
+- [Project files](#project-files)
+- [License](#license)
 
 ---
 
-## Funktionen
+## Features
 
-**Für Python-Programme**
-- Hauptdatei (`.py` / `.pyw`) auswählen → Ordner, Programmname und Symbol werden automatisch übernommen
-- **Automatische Paketerkennung:** Die Importe werden ausgewertet und die richtigen PyPI-Pakete eingetragen
-  - Import-Namen werden in Paketnamen übersetzt, z. B. `PIL` → `Pillow`, `cv2` → `opencv-python`, `docx` → `python-docx`, `yaml` → `PyYAML`
-  - Eigene Module und Pakete im Projektordner werden erkannt und verfolgt
-  - Fremde `.py`-Dateien, die zufällig im selben Ordner liegen, werden **nicht** mitgezählt
-  - Hinweise bei Windows-Modulen (`win32api`, `winreg` …) und problematischen Paketen
-- Tkinter-Programme bekommen automatisch Python mit **geglätteter Schrift** (Tk mit Xft von conda-forge)
-- Pakete werden gezielt in der Ausgabe **für ältere Linux-Systeme** installiert
+**For Python programs**
+- Choose the main file (`.py` / `.pyw`) → folder, program name and icon are filled in automatically
+- **Automatic package detection:** imports are analysed and the correct PyPI packages are entered
+  - Import names are translated into package names, e.g. `PIL` → `Pillow`, `cv2` → `opencv-python`, `docx` → `python-docx`, `yaml` → `PyYAML`
+  - Your own modules and packages in the project folder are detected and followed
+  - Unrelated `.py` files that happen to be in the same folder are **not** counted
+  - Notes for Windows-only modules (`win32api`, `winreg` …) and problematic packages
+- Tkinter programs automatically get Python with **smooth (anti-aliased) fonts** (Tk with Xft from conda-forge)
+- Packages are installed in the variant built **for older Linux systems**
 
-**Für Rust-Programme**
-- `Cargo.toml` auswählen → Programmname, Version und Beschreibung werden gelesen
-- Die **APP_ID** wird direkt im Quelltext gesucht (z. B. `const APP_ID: &str = "…"`), damit das Fenster in der Leiste das richtige Symbol zeigt
-- Symbol wird in `assets/` bzw. `src/assets/` gefunden
-- Bau mit **cargo-zigbuild** für eine wählbare glibc-Version (z. B. 2.28 für Linux Mint 20)
+**For Rust programs**
+- Choose `Cargo.toml` → program name, version and description are read
+- The **APP_ID** is looked up directly in the source code (e.g. `const APP_ID: &str = "…"`), so the window shows the right icon in the panel
+- The icon is found in `assets/` or `src/assets/`
+- Builds with **cargo-zigbuild** for a selectable glibc version (e.g. 2.28 for Linux Mint 20)
 
-**Für beide**
-- Alle Optionen per Haken ein- und ausschalten
-- **Live-Ausgabe** des Build-Vorgangs im Fenster, Abbrechen jederzeit möglich
-- **Einstellungen werden pro Projekt gespeichert** – beim nächsten Mal ist alles wieder so eingestellt
-- Fertige AppImages **tragen sich beim ersten Start selbst ins Startmenü ein** – mit Symbol, auch im Dateimanager
-- Prüfung der benötigten **glibc-Version** am Ende jedes Builds
-- Der Builder kann **sich selbst als AppImage bauen**
-- Oberfläche auf **Deutsch und Englisch**, weitere Sprachen als JSON-Datei ergänzbar
+**For both**
+- Every option can be switched on and off with a checkbox
+- **Live output** of the build in the window, cancel at any time
+- **Settings are saved per project** – next time everything is set up the same way
+- Finished AppImages **add themselves to the application menu on first start** – with icon, also in the file manager
+- Check of the required **glibc version** at the end of every build
+- The builder can **build itself as an AppImage**
+- Interface in **21 languages**, more can be added as JSON files
 
 ---
 
-## Voraussetzungen
+## Requirements
 
-| Was | Wofür | Installation |
+| What | For | Installation |
 |---|---|---|
-| Linux **x86_64** | Bau-Rechner | – |
-| Python 3 mit Tkinter | Oberfläche | `sudo apt install python3-tk` |
-| `bash`, `curl` | Build-Skripte | meist schon vorhanden |
-| **uv** | Python-Programme bauen | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| **Rust / cargo** | Rust-Programme bauen | siehe [rustup.rs](https://rustup.rs) |
-| **cargo-zigbuild** *(empfohlen)* | Rust für ältere glibc bauen | `cargo install cargo-zigbuild && pip install ziglang` |
+| Linux **x86_64** | build machine | – |
+| Python 3 with Tkinter | the GUI | `sudo apt install python3-tk` |
+| `bash`, `curl` | build scripts | usually already installed |
+| **uv** | building Python programs | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| **Rust / cargo** | building Rust programs | see [rustup.rs](https://rustup.rs) |
+| **cargo-zigbuild** *(recommended)* | Rust builds for older glibc | `cargo install cargo-zigbuild && pip install ziglang` |
 
-Beim ersten Build werden automatisch heruntergeladen (einmalig, danach zwischengespeichert):
+Downloaded automatically on the first build (once, then cached):
 - `appimagetool`
-- bei Tkinter-Programmen: `micromamba` und Python + Tk von conda-forge
+- for Tkinter programs: `micromamba` and Python + Tk from conda-forge
 
 ---
 
@@ -88,9 +90,9 @@ cd AppImage-Builder
 python3 AppImage_Builder.py
 ```
 
-Wichtig: `AppImage_Builder.py`, `build_appimage_v2.sh` und `build_appimage_rust.sh` müssen **im selben Ordner** liegen.
+Important: `AppImage_Builder.py`, `build_appimage_v2.sh` and `build_appimage_rust.sh` must be **in the same folder**.
 
-Alternativ das fertige `AppImage_Builder.AppImage` aus den [Releases](../../releases) herunterladen, ausführbar machen und starten:
+Or download the ready-made `AppImage_Builder.AppImage` from the [Releases](../../releases), make it executable and start it:
 
 ```bash
 chmod +x AppImage_Builder.AppImage
@@ -99,300 +101,310 @@ chmod +x AppImage_Builder.AppImage
 
 ---
 
-## Benutzung – Python
+## Usage – Python
 
-1. **„Auswählen …“** klicken und die **Hauptdatei** deines Programms wählen (z. B. `MeinProgramm.py`).
-2. Der Builder trägt automatisch ein:
-   - **Programmname** = Dateiname ohne `.py`
-   - **Symbol** = `MeinProgramm.png`, sonst `icon.png`, sonst das erste PNG im Ordner
-   - **PACKAGES** = die erkannten Pakete
-3. Erkennung prüfen (unter dem Feld steht, was gefunden wurde) und bei Bedarf anpassen.
-4. Kategorie und Optionen wählen.
-5. **„AppImage bauen“** klicken.
+1. Click **"Choose …"** and select the **main file** of your program (e.g. `MyProgram.py`).
+2. The builder fills in automatically:
+   - **Program name** = file name without `.py`
+   - **Icon** = `MyProgram.png`, otherwise `icon.png`, otherwise the first PNG in the folder
+   - **PACKAGES** = the detected packages
+3. Check the detection (shown below the field) and adjust if needed.
+4. Choose category and options.
+5. Click **"Build AppImage"**.
 
-Ergebnis:
+Result:
 ```
-<Projektordner>/dist/<Programmname>-x86_64.AppImage
+<project folder>/dist/<program name>-x86_64.AppImage
 ```
 
-> **Tipp:** Jedes Programm in einen **eigenen Ordner** legen. Das Build-Skript packt alle Bilder, Töne und Datendateien aus dem Ordner (und Unterordnern mit solchen Dateien) mit ein.
+> **Tip:** Put every program in its **own folder**. The build script bundles all images, sounds and data files from the folder (and from subfolders containing such files).
 
-### Beispiele für die Erkennung
+### Detection examples
 
-| Programm importiert … | PACKAGES |
+| Program imports … | PACKAGES |
 |---|---|
 | `tkinter`, `chardet` | `chardet` |
 | `tkinter`, `docx` | `python-docx` |
 | `tkinter`, `PIL` | `Pillow` |
 | `PySide6`, `numpy`, `cv2`, `yaml` | `PySide6 numpy opencv-python PyYAML` |
-| nur Standardbibliothek + `tkinter` | *(leer)* |
+| standard library only + `tkinter` | *(empty)* |
 
 ---
 
-## Benutzung – Rust
+## Usage – Rust
 
-1. **„Auswählen …“** klicken und die **`Cargo.toml`** des Projekts wählen.
-2. Der Builder schaltet in den **Rust-Modus** und trägt ein:
-   - Programmname aus `[[bin]]` bzw. `[package]`
-   - Version und Beschreibung aus `[package]`
-   - **Kennung (APP_ID)** aus dem Quelltext
-   - Symbol aus `assets/` oder `src/assets/`
-3. **Älteste glibc** wählen (Standard: 2.28 → ab Linux Mint 20 / Ubuntu 20.04 / Debian 10).
-4. **„AppImage bauen“** klicken.
+1. Click **"Choose …"** and select the project's **`Cargo.toml`**.
+2. The builder switches to **Rust mode** and fills in:
+   - program name from `[[bin]]` or `[package]`
+   - version and description from `[package]`
+   - **identifier (APP_ID)** from the source code
+   - icon from `assets/` or `src/assets/`
+3. Choose the **oldest glibc** (default: 2.28 → Linux Mint 20 / Ubuntu 20.04 / Debian 10 and newer).
+4. Click **"Build AppImage"**.
 
-Ergebnis:
+Result:
 ```
-<Projektordner>/dist/<Programm>-<Version>-x86_64.AppImage
+<project folder>/dist/<program>-<version>-x86_64.AppImage
 ```
 
-> **Wichtig:** Die APP_ID muss zu der Kennung passen, die dein Programm seinem Fenster gibt. Nur dann zeigt die Leiste das Symbol aus dem Startmenü-Eintrag (`StartupWMClass`).
+> **Important:** The APP_ID must match the identifier your program gives its window. Only then does the panel show the icon from the menu entry (`StartupWMClass`).
 
 ---
 
-## Alle Einstellungen erklärt
+## All settings explained
 
-### Programm (beide Modi)
+### Program (both modes)
 
-| Feld | Bedeutung |
+| Field | Meaning |
 |---|---|
-| Projektdatei | Python-Hauptdatei oder `Cargo.toml` |
-| Programmname | Name des AppImage und des Startmenü-Eintrags |
-| Symbol (PNG) | Programmsymbol, am besten 256×256 oder größer |
-| Kategorie | Startmenü-Rubrik (`Utility;`, `Education;`, `Game;`, `Office;`, `Development;` …) |
+| Project file | Python main file or `Cargo.toml` |
+| Program name | name of the AppImage and of the menu entry |
+| Icon (PNG) | program icon, ideally 256×256 or larger |
+| Category | menu category (`Utility;`, `Education;`, `Game;`, `Office;`, `Development;` …) |
 
-### Python – Optionen
+### Python – Options
 
-| Option | Bedeutung |
+| Option | Meaning |
 |---|---|
-| Komplett neu bauen | Python-Umgebung (`.venv`) jedes Mal frisch anlegen – verhindert Reste alter Builds |
-| System-Bibliotheken nicht einpacken | GTK, X11, GLib usw. des Bau-Rechners weglassen → läuft auch auf älteren Systemen |
-| Pakete für ältere Systeme wählen | installiert nur fertige Pakete für `manylinux_2_17` (PySide6: `manylinux_2_34`), nie selbst kompiliert |
-| Beim ersten Start ins Startmenü eintragen | siehe [Startmenü und Symbol](#startmenü-und-symbol) |
-| glibc-Prüfung | Build schlägt fehl, wenn das AppImage eine neuere glibc braucht als angegeben. Bei PySide6 wird die Grenze automatisch auf 2.34 angehoben |
+| Clean build | create the Python environment (`.venv`) from scratch every time – avoids leftovers from older builds |
+| Do not bundle system libraries | leave out GTK, X11, GLib etc. of the build machine → also runs on older systems |
+| Install packages for older systems | only installs ready-made packages for `manylinux_2_17` (PySide6: `manylinux_2_34`), never compiles locally |
+| Add to the application menu on first start | see [Application menu and icon](#application-menu-and-icon) |
+| glibc check | the build fails if the AppImage needs a newer glibc than given. For PySide6 the limit is raised to 2.34 automatically |
 
-### Python – Erweitert
+### Python – Advanced
 
-| Feld | Bedeutung |
+| Field | Meaning |
 |---|---|
-| Python-Version | z. B. `3.11` |
-| Python-Quelle | `auto` = conda-forge bei Tkinter (schöne Schrift), sonst uv · `conda` · `uv` |
-| Datendateien | Dateitypen, die mit eingepackt werden (`*.png *.wav *.json …`) |
-| Komplett einpacken | Python-Module, die PyInstaller vollständig einpacken soll, weil sie Teile erst beim Start laden (`pynput` wird automatisch erkannt) |
-| Build-Skript | Pfad zu `build_appimage_v2.sh` |
+| Python version | e.g. `3.11` |
+| Python source | `auto` = conda-forge for Tkinter (nice fonts), otherwise uv · `conda` · `uv` |
+| Data files | file types that are bundled (`*.png *.wav *.json …`) |
+| Collect completely | Python modules PyInstaller should bundle completely because they load parts at runtime (`pynput` is detected automatically) |
+| Build script | path to `build_appimage_v2.sh` |
 
 ### Rust
 
-| Feld | Bedeutung |
+| Field | Meaning |
 |---|---|
-| Kennung (APP_ID) | Fenster-Kennung des Programms |
-| Beschreibung | Text im Startmenü (`Comment=`) |
-| Älteste glibc | Ziel-glibc für cargo-zigbuild |
-| Startmenü-Eintrag | ein-/ausschalten |
-| Rust-Build-Skript | Pfad zu `build_appimage_rust.sh` |
+| Identifier (APP_ID) | window identifier of the program |
+| Description | text in the application menu (`Comment=`) |
+| Oldest glibc | target glibc for cargo-zigbuild |
+| Menu entry | on / off |
+| Rust build script | path to `build_appimage_rust.sh` |
 
 ---
 
-## Was passiert beim Bauen?
+## What happens during a build?
 
 ### Python
-1. Python-Umgebung anlegen – bei Tkinter mit Python + Tk (Xft) von conda-forge
-2. Pakete mit `uv` installieren – nur fertige Pakete für die Zielplattform
-3. Programm mit **PyInstaller** bauen, Bilder/Daten und Tcl/Tk einpacken
-4. System-Bibliotheken des Bau-Rechners entfernen
-5. AppDir mit Startskript (`AppRun`), `.desktop`-Datei und Symbol zusammenstellen
-6. AppImage mit **appimagetool** erzeugen
-7. Benötigte glibc-Version prüfen und anzeigen
+1. Create the Python environment – for Tkinter with Python + Tk (Xft) from conda-forge
+2. Install packages with `uv` – only ready-made packages for the target platform
+3. Build the program with **PyInstaller**, bundle images/data and Tcl/Tk
+4. Remove the build machine's system libraries
+5. Assemble the AppDir with start script (`AppRun`), `.desktop` file and icon
+6. Create the AppImage with **appimagetool**
+7. Check and show the required glibc version
 
 ### Rust
-1. Werte aus `Cargo.toml` lesen
-2. Mit **cargo-zigbuild** für die gewählte glibc kompilieren (ohne zigbuild: normaler `cargo build` mit Warnung)
-3. AppDir mit Startskript, `.desktop`-Datei und Symbol zusammenstellen
-4. AppImage mit appimagetool erzeugen
+1. Read values from `Cargo.toml`
+2. Compile with **cargo-zigbuild** for the selected glibc (without zigbuild: normal `cargo build` with a warning)
+3. Assemble the AppDir with start script, `.desktop` file and icon
+4. Create the AppImage with appimagetool
 
 ---
 
-## Kompatibilität (glibc)
+## Compatibility (glibc)
 
-Ein Linux-Programm läuft nur auf Systemen, deren **glibc mindestens so neu** ist wie die, für die es gebaut wurde. Am Ende jedes Builds steht:
+A Linux program only runs on systems whose **glibc is at least as new** as the one it was built for. At the end of every build you see:
 
 ```
 Benötigt mindestens: glibc 2.17
 ```
+("requires at least glibc 2.17")
 
 | System | glibc | Python (Tkinter/PyQt5) | Python (PySide6) | Rust (2.28) |
 |---|---|---|---|---|
 | Linux Mint 22 / Ubuntu 24.04 | 2.39 | ✔ | ✔ | ✔ |
 | Linux Mint 21 / Ubuntu 22.04 | 2.35 | ✔ | ✔ | ✔ |
 | Linux Mint 20 / Ubuntu 20.04 | 2.31 | ✔ | ✘ | ✔ |
-| Debian 12 / 11 / 10 | 2.36 / 2.31 / 2.28 | ✔ | nur 12 | ✔ |
-| Linux Mint 19 / Ubuntu 18.04 | 2.27 | ✔ | ✘ | ✘ (mit 2.17: ✔) |
-| CentOS 7 | 2.17 | ✔ | ✘ | ✘ (mit 2.17: ✔) |
+| Debian 12 / 11 / 10 | 2.36 / 2.31 / 2.28 | ✔ | only 12 | ✔ |
+| Linux Mint 19 / Ubuntu 18.04 | 2.27 | ✔ | ✘ | ✘ (with 2.17: ✔) |
+| CentOS 7 | 2.17 | ✔ | ✘ | ✘ (with 2.17: ✔) |
 
-PySide6 gibt es nicht für glibc älter als 2.34 – daran lässt sich beim Bauen nichts ändern.
+PySide6 is not available for glibc older than 2.34 – this cannot be changed at build time.
 
 ---
 
-## Startmenü und Symbol
+## Application menu and icon
 
-Ein Linux-Programm (ELF-Datei) kann – anders als eine Windows-`.exe` – **kein eingebautes Symbol** haben. Damit AppImages trotzdem gut aussehen, enthält jedes erzeugte AppImage ein Startskript, das sich beim Start selbst einbindet:
+Unlike a Windows `.exe`, a Linux program (ELF file) **cannot contain an icon**. So that AppImages still look good, every AppImage created contains a start script that integrates it on start:
 
-- **beim ersten Start:** Startmenü-Eintrag und Symbol werden angelegt, die Datei bekommt ihr Symbol im Dateimanager
-- **bei jedem weiteren Start:** nichts – der Eintrag existiert schon
-- **nach dem Verschieben:** der Eintrag wird beim nächsten Start auf den neuen Ort aktualisiert
+- **first start:** menu entry and icon are created, and the file gets its icon in the file manager
+- **every further start:** nothing – the entry already exists
+- **after moving the file:** the entry is updated to the new location on the next start
 
-Angelegt wird:
+Created files:
 ```
 ~/.local/share/applications/appimage-<Name>.desktop
 ~/.local/share/icons/appimage-<Name>.png
 ```
 
-Das Symbol im Dateimanager erscheint erst nach dem ersten Start – eventuell **F5** drücken oder Nemo neu starten (`nemo -q`).
+The icon in the file manager appears only after the first start – press **F5** or restart Nemo (`nemo -q`) if needed.
 
-**Abschalten:** Haken „Beim ersten Start … eintragen“ entfernen, oder einmalig beim Start:
+**Turn off:** untick "Add to the application menu … on first start", or once at start:
 ```bash
-APPIMAGE_NO_INTEGRATE=1 ./Programm-x86_64.AppImage
+APPIMAGE_NO_INTEGRATE=1 ./Program-x86_64.AppImage
 ```
 
-**Entfernen:** die beiden oben genannten Dateien löschen.
+**Remove:** delete the two files listed above.
 
 ---
 
-## Sprachen
+## Languages
 
-Die Oberfläche gibt es auf **Deutsch** und **Englisch**. Beim ersten Start wird die Systemsprache genommen; oben rechts kann jederzeit umgeschaltet werden – ohne Neustart, alle Eingaben bleiben erhalten. Die Wahl wird gespeichert.
+The interface is available in **21 languages**:
 
-Die Ausgabe der Build-Skripte ist auf Deutsch.
+| | | | |
+|---|---|---|---|
+| Čeština (cs) | Dansk (da) | Deutsch (de) | Eesti (et) |
+| English (en) | Español (es) | Français (fr) | Italiano (it) |
+| Magyar (hu) | Nederlands (nl) | Norsk bokmål (nb) | Polski (pl) |
+| Português (pt) | Română (ro) | Slovenčina (sk) | Suomi (fi) |
+| Svenska (sv) | Türkçe (tr) | Ελληνικά (el) | Русский (ru) |
+| Українська (uk) | | | |
 
-### Weitere Sprache hinzufügen
+German and English are built into the program, all others are JSON files in the `lang/` folder. On first start the system language is used; you can switch at any time in the top right corner – no restart needed, all input is kept. The choice is saved.
 
-Ohne den Code zu ändern:
+The output of the build scripts is in German.
 
-1. Vorlage erzeugen (Englisch als Grundlage):
+### Adding a language
+
+No code changes needed:
+
+1. Create a template (English as the base):
    ```bash
-   python3 AppImage_Builder.py --export-lang en > lang/es.json
+   python3 AppImage_Builder.py --export-lang en > lang/xx.json
    ```
-   oder `lang/_vorlage_en.json` kopieren und umbenennen.
-2. In der Datei `"_name"` auf den Namen der Sprache setzen (z. B. `"Español"`) und die Texte übersetzen. Platzhalter wie `{name}` oder `{path}` unverändert lassen.
-3. Programm neu starten – die Sprache erscheint in der Auswahl.
+   or copy `lang/_vorlage_en.json` and rename it.
+2. Set `"_name"` to the name of the language in that language (e.g. `"Español"`) and translate the texts. Keep placeholders like `{name}` or `{path}` unchanged.
+3. Restart the program – the language appears in the list.
 
-Der Dateiname ist der Sprachcode (`es.json`, `fr.json`, `uk.json` …). Fehlende Texte werden automatisch auf Englisch angezeigt, eine Übersetzung kann also auch nach und nach entstehen.
+The file name is the language code (`es.json`, `fr.json`, `uk.json` …). Missing texts are shown in English automatically, so a translation can also grow step by step.
 
-Gesucht wird in:
-- `lang/` neben `AppImage_Builder.py` (bzw. im AppImage eingepackt)
+Language files are loaded from:
+- `lang/` next to `AppImage_Builder.py` (or bundled inside the AppImage)
 - `~/.config/AppImageBuilder/lang/`
 
-Übersetzungen sind als Pull Request willkommen!
+Translations and corrections are welcome as pull requests!
 
 ---
 
-## Den Builder selbst als AppImage bauen
+## Building the builder itself as an AppImage
 
-1. Diese vier Dateien in einen **eigenen, leeren Ordner** legen:
+1. Put these files into their **own, empty folder**:
    ```
    AppImage_Builder.py
    AppImage_Builder.png
    build_appimage_v2.sh
    build_appimage_rust.sh
+   lang/          (language files)
    ```
-2. `python3 AppImage_Builder.py` starten und `AppImage_Builder.py` selbst auswählen.
-3. Unter **Erweitert → Datendateien** am Ende ` *.sh` anhängen (damit die Build-Skripte mit hineinkommen).
-4. „Komplett einpacken“ bleibt leer, „Build-Skript“ bleibt `build_appimage_v2.sh`.
-5. **„AppImage bauen“**.
+2. Start `python3 AppImage_Builder.py` and choose `AppImage_Builder.py` itself.
+3. Under **Advanced → Data files** append ` *.sh` at the end (so the build scripts are bundled). The `lang/` folder is included automatically because `*.json` is already in the list.
+4. Leave "Collect completely" empty; "Build script" stays `build_appimage_v2.sh`.
+5. **"Build AppImage"**.
 
-Als AppImage findet der Builder seine eingebauten Skripte selbst und gibt den Build-Programmen eine bereinigte Umgebung mit (ohne die AppImage-Variablen), damit `uv`, `cargo` und `appimagetool` nicht versehentlich seine Bibliotheken laden.
+As an AppImage, the builder finds its bundled scripts by itself and gives the build tools a cleaned environment (without the AppImage variables), so that `uv`, `cargo` and `appimagetool` don't accidentally load its libraries.
 
-Eine Datei kann direkt beim Start übergeben werden:
+A file can be passed directly at start:
 ```bash
-./AppImage_Builder-x86_64.AppImage ~/Projekte/MeinProgramm/MeinProgramm.py
+./AppImage_Builder.AppImage ~/Projects/MyProgram/MyProgram.py
 ```
 
 ---
 
-## Skripte ohne Oberfläche benutzen
+## Using the scripts without the GUI
 
-Beide Skripte funktionieren auch allein. Entweder die Einstellungen oben im Skript ändern und im Projektordner starten:
+Both scripts also work on their own. Either change the settings at the top of the script and run it in the project folder:
 
 ```bash
 bash build_appimage_v2.sh            # Python
-bash build_appimage_v2.sh --clean    # Python, komplett neu
+bash build_appimage_v2.sh --clean    # Python, clean build
 bash build_appimage_rust.sh          # Rust
 ```
 
-oder Einstellungen von außen übergeben:
+or pass settings from outside:
 
 ```bash
-PROJECT_DIR=~/Projekte/Pyt APP_NAME=Pyt MAIN_SCRIPT=Pyt.py \
-ICON=~/Projekte/Pyt/Pyt.png PACKAGES="chardet" \
+PROJECT_DIR=~/Projects/Pyt APP_NAME=Pyt MAIN_SCRIPT=Pyt.py \
+ICON=~/Projects/Pyt/Pyt.png PACKAGES="chardet" \
 bash build_appimage_v2.sh
 ```
 
 ```bash
-PROJECT_DIR=~/Projekte/Silben APP_NAME=De_Silben APP_ID=de_syllable_hyphenator \
-COMMENT="Silbentrennung" GLIBC=2.28 \
+PROJECT_DIR=~/Projects/Silben APP_NAME=De_Silben APP_ID=de_syllable_hyphenator \
+COMMENT="Syllable hyphenation" GLIBC=2.28 \
 bash build_appimage_rust.sh
 ```
 
 ---
 
-## Testen auf älteren Systemen
+## Testing on older systems
 
-Am zuverlässigsten in einer virtuellen Maschine (VirtualBox, VMware), z. B. mit **Linux Mint 20** und **21**:
+Most reliable in a virtual machine (VirtualBox, VMware), e.g. with **Linux Mint 20** and **21**:
 
-- Python-Programme mit Tkinter/PyQt5 → in Mint 20 testen (läuft es dort, läuft es auch auf neueren)
-- PySide6-Programme → in Mint 21 testen
-- Nach der Installation einen **Snapshot** anlegen, damit jeder Test auf einem sauberen System läuft
-- Zum Testen im Terminal starten – dann sieht man Fehlermeldungen
+- Python programs with Tkinter/PyQt5 → test on Mint 20 (if it runs there, it runs on newer ones too)
+- PySide6 programs → test on Mint 21
+- Take a **snapshot** after installation so every test runs on a clean system
+- Start from a terminal when testing – then you see error messages
 
-Mehrfach-Starttest (124 = lief, 139 = Absturz):
+Repeated start test (124 = ran, 139 = crash):
 ```bash
-for i in $(seq 10); do timeout 3 ./Programm-x86_64.AppImage >/dev/null 2>&1; echo "Start $i: $?"; done
+for i in $(seq 10); do timeout 3 ./Program-x86_64.AppImage >/dev/null 2>&1; echo "Start $i: $?"; done
 ```
 
 ---
 
-## Fehlerbehebung
+## Troubleshooting
 
-| Problem | Ursache / Lösung |
+| Problem | Cause / solution |
 |---|---|
-| AppImage startet nicht, Hinweis auf FUSE | `sudo apt install libfuse2` oder `./Programm.AppImage --appimage-extract-and-run` |
-| Kein Symbol im Dateimanager | AppImage einmal starten, dann F5 bzw. `nemo -q` |
-| `ModuleNotFoundError` beim Start | Paket fehlt in PACKAGES → eintragen und neu bauen |
-| Programm startet als AppImage nicht, ohne Meldung | im Terminal starten, um den Fehler zu sehen |
-| `Segmentation fault` bei Tkinter auf älteren Systemen (z. B. Mint 21) | ein farbiges **Emoji in der Oberfläche beim Start** kann mit dem eingepackten Tk abstürzen → Emoji entfernen |
-| Datei-Dialog öffnet sich in einem Temp-Ordner (`/tmp/.mount_…`) | im Programm `initialdir=` für `filedialog` angeben (z. B. Home-Ordner) |
-| Build bricht bei der glibc-Prüfung ab | ein Paket braucht eine neuere glibc → Grenze anheben oder Paket ersetzen |
-| Rust-AppImage läuft nicht auf älteren Systemen | `cargo-zigbuild` installieren, sonst wirkt die glibc-Einstellung nicht |
-| Fertiges AppImage nicht gefunden | es liegt immer im Ordner **`dist`** und endet auf `.AppImage` |
+| AppImage does not start, message about FUSE | `sudo apt install libfuse2` or `./Program.AppImage --appimage-extract-and-run` |
+| No icon in the file manager | start the AppImage once, then F5 or `nemo -q` |
+| `ModuleNotFoundError` at start | package missing in PACKAGES → add it and rebuild |
+| Program does not start as AppImage, no message | start it from a terminal to see the error |
+| `Segmentation fault` with Tkinter on older systems (e.g. Mint 21) | a colour **emoji in the interface at start** can crash the bundled Tk → remove the emoji |
+| File dialog opens in a temp folder (`/tmp/.mount_…`) | set `initialdir=` for `filedialog` in your program (e.g. the home folder) |
+| Build stops at the glibc check | a package needs a newer glibc → raise the limit or replace the package |
+| Rust AppImage does not run on older systems | install `cargo-zigbuild`, otherwise the glibc setting has no effect |
+| Can't find the finished AppImage | it is always in the **`dist`** folder and ends with `.AppImage` |
 
 ---
 
-## Dateien im Projekt
+## Project files
 
-| Datei | Beschreibung |
+| File | Description |
 |---|---|
-| `AppImage_Builder.py` | grafische Oberfläche |
-| `AppImage_Builder.png` | Programmsymbol |
-| `build_appimage_v2.sh` | Build-Skript für Python-Programme |
-| `build_appimage_rust.sh` | Build-Skript für Rust-Programme |
-| `lang/` | zusätzliche Sprachen (`<code>.json`), Vorlage `_vorlage_en.json` |
+| `AppImage_Builder.py` | graphical interface |
+| `AppImage_Builder.png` | program icon |
+| `build_appimage_v2.sh` | build script for Python programs |
+| `build_appimage_rust.sh` | build script for Rust programs |
+| `lang/` | language files (`<code>.json`), template `_vorlage_en.json` |
 
-Gespeicherte Einstellungen:
+Saved settings:
 ```
 ~/.config/AppImageBuilder/einstellungen.json
 ```
 
-Im Projektordner des gebauten Programms entstehen:
+Created in the project folder of the built program:
 ```
-.venv/     Python-Umgebung (nur Python)
-build/     Zwischendateien, appimagetool, conda-Python
-dist/      fertiges AppImage
+.venv/     Python environment (Python only)
+build/     intermediate files, appimagetool, conda Python
+dist/      finished AppImage
 ```
 
 ---
 
-## Lizenz
+## License
 
-<!-- Lizenz eintragen, z. B. MIT -->
-Dieses Projekt steht unter der **MIT-Lizenz** – siehe [LICENSE](LICENSE).
-
-
+This project is licensed under the **MIT License** – see [LICENSE](LICENSE).
