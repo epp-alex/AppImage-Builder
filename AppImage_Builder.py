@@ -158,6 +158,17 @@ TRANSLATIONS = {
         "err_start": "Konnte das Build-Skript nicht starten:\n{error}",
         "err_open": "Ordner konnte nicht geöffnet werden:\n{error}",
         "ask_quit": "Es läuft noch ein Build. Abbrechen und beenden?",
+        # Werkzeuge
+        "tool_no_uv": "WARNUNG: uv nicht gefunden – wird zum Bauen gebraucht. "
+                      "Installieren: curl -LsSf https://astral.sh/uv/install.sh | sh",
+        "tool_no_curl": "WARNUNG: curl nicht gefunden – wird zum Herunterladen gebraucht. "
+                        "Installieren: sudo apt install curl",
+        "err_no_uv": "uv ist nicht installiert, wird aber zum Bauen von Python-Programmen gebraucht.\n\n"
+                     "Im Terminal installieren:\n"
+                     "curl -LsSf https://astral.sh/uv/install.sh | sh\n\n"
+                     "Danach einfach noch einmal auf „AppImage bauen“ klicken.",
+        "err_no_curl": "curl ist nicht installiert, wird aber zum Herunterladen gebraucht.\n\n"
+                       "Im Terminal installieren:\nsudo apt install curl",
     },
 
     "en": {
@@ -252,6 +263,16 @@ TRANSLATIONS = {
         "err_start": "Could not start the build script:\n{error}",
         "err_open": "Could not open the folder:\n{error}",
         "ask_quit": "A build is still running. Cancel it and quit?",
+        "tool_no_uv": "WARNING: uv not found – it is needed for building. "
+                      "Install: curl -LsSf https://astral.sh/uv/install.sh | sh",
+        "tool_no_curl": "WARNING: curl not found – it is needed for downloads. "
+                        "Install: sudo apt install curl",
+        "err_no_uv": "uv is not installed, but it is needed to build Python programs.\n\n"
+                     "Install it in a terminal:\n"
+                     "curl -LsSf https://astral.sh/uv/install.sh | sh\n\n"
+                     "Then simply click “Build AppImage” again.",
+        "err_no_curl": "curl is not installed, but it is needed for downloads.\n\n"
+                       "Install it in a terminal:\nsudo apt install curl",
     },
 }
 
@@ -405,6 +426,36 @@ def clean_env():
                 env.pop(var)
     for var in ("APPDIR", "APPIMAGE", "ARGV0", "OWD"):
         env.pop(var, None)
+    return env
+
+
+# Ordner, in die sich uv und Rust installieren. Beim Start aus dem Startmenü
+# oder als AppImage stehen sie oft NICHT im Suchpfad (PATH) - deshalb dort
+# zusätzlich suchen und den Build-Skripten mitgeben.
+EXTRA_TOOL_DIRS = [os.path.expanduser("~/.local/bin"), os.path.expanduser("~/.cargo/bin")]
+
+
+def find_tool(name):
+    """Pfad zu einem Programm (uv, curl, cargo …) oder "" wenn nicht vorhanden."""
+    import shutil
+    path = clean_env().get("PATH", os.defpath)
+    found = shutil.which(name, path=path)
+    if found:
+        return found
+    for d in EXTRA_TOOL_DIRS:
+        p = os.path.join(d, name)
+        if os.path.isfile(p) and os.access(p, os.X_OK):
+            return p
+    return ""
+
+
+def add_tool_dirs(env):
+    """Die Zusatz-Ordner an PATH anhängen, damit die Build-Skripte uv/cargo finden."""
+    parts = env.get("PATH", os.defpath).split(os.pathsep)
+    for d in EXTRA_TOOL_DIRS:
+        if os.path.isdir(d) and d not in parts:
+            parts.append(d)
+    env["PATH"] = os.pathsep.join(p for p in parts if p)
     return env
 
 
@@ -610,8 +661,8 @@ def analyze_rust(cargo_path):
     return {
         "bin": bin_name, "version": version, "description": description,
         "app_id": app_id, "app_id_file": app_id_file, "icon": icon,
-        "has_cargo": bool(shutil.which("cargo")),
-        "has_zigbuild": bool(shutil.which("cargo-zigbuild")),
+        "has_cargo": bool(find_tool("cargo")),
+        "has_zigbuild": bool(find_tool("cargo-zigbuild")),
     }
 
 
@@ -1028,6 +1079,10 @@ class BuilderApp:
             lines.append(tr("an_local", names=", ".join(r["local"])))
         if r["has_requirements"]:
             lines.append(tr("an_requirements"))
+        if not find_tool("uv"):
+            lines.append(tr("tool_no_uv"))
+        if not find_tool("curl"):
+            lines.append(tr("tool_no_curl"))
         for key, kw in r["notes"]:
             lines.append(tr("an_hint", text=tr(key, **kw)))
         for e in r["errors"]:
@@ -1093,6 +1148,13 @@ class BuilderApp:
         if not os.path.isfile(script):
             messagebox.showerror(APP_TITLE, tr("err_script", path=script))
             return
+        if not find_tool("uv"):
+            self.reanalyze(keep_packages=True)          # Hinweis auch im Fenster zeigen
+            messagebox.showerror(APP_TITLE, tr("err_no_uv"))
+            return
+        if not find_tool("curl"):
+            messagebox.showerror(APP_TITLE, tr("err_no_curl"))
+            return
         if not s["name"]:
             messagebox.showerror(APP_TITLE, tr("err_name"))
             return
@@ -1109,7 +1171,7 @@ class BuilderApp:
         self.cfg[self.main_path] = s
         save_cfg(self.cfg)
 
-        env = clean_env()
+        env = add_tool_dirs(clean_env())
         env.update({
             "PROJECT_DIR": os.path.dirname(self.main_path),
             "MAIN_SCRIPT": os.path.basename(self.main_path),
@@ -1148,7 +1210,7 @@ class BuilderApp:
             return None
         self.cfg[self.main_path] = s
         save_cfg(self.cfg)
-        env = clean_env()
+        env = add_tool_dirs(clean_env())
         env.update({
             "PROJECT_DIR": os.path.dirname(self.main_path),
             "BIN": self.rust_info["bin"],
