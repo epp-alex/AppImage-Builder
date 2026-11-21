@@ -48,7 +48,7 @@
   "ft_png": "Obrázok PNG",
   "ft_shell": "Shellový skript",
   "ft_all": "Všetky súbory",
-  "an_gui": "GUI toolkit: {names}",
+  "an_gui": "Grafické rozhranie: {names}",
   "an_tk": "GUI toolkit: Tkinter (súčasť Pythonu, nie je potrebný balík)",
   "an_no_gui": "Nebola nájdená žiadna knižnica GUI.",
   "an_packages": "Zistené balíky: {names}",
