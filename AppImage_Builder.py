@@ -670,7 +670,11 @@ class BuilderApp:
         # --- Sprachauswahl ---
         lr = ttk.Frame(main)
         lr.pack(fill="x", pady=(0, 4))
-        self.lang_codes = sorted(TRANSLATIONS, key=lambda c: TRANSLATIONS[c].get("_name", c).lower())
+        def sort_key(c):
+            import unicodedata
+            n = unicodedata.normalize("NFD", TRANSLATIONS[c].get("_name", c))
+            return "".join(ch for ch in n if not unicodedata.combining(ch)).lower()
+        self.lang_codes = sorted(TRANSLATIONS, key=sort_key)
         names = [TRANSLATIONS[c].get("_name", c) for c in self.lang_codes]
         self.v_lang = tk.StringVar(value=TRANSLATIONS[LANG].get("_name", LANG))
         cb = ttk.Combobox(lr, textvariable=self.v_lang, values=names, state="readonly", width=14)
@@ -741,8 +745,8 @@ class BuilderApp:
         ttk.Checkbutton(f3, text=tr("opt_glibc"),
                         variable=self.v_glibc_on).grid(row=4, column=0, sticky="w")
         ttk.Entry(f3, textvariable=self.v_glibc, width=6).grid(row=4, column=1, sticky="w", padx=4)
-        ttk.Label(f3, text=tr("opt_glibc_hint"),
-                  foreground="#555").grid(row=4, column=2, sticky="w")
+        ttk.Label(f3, text=tr("opt_glibc_hint"), foreground="#555",
+                  wraplength=820, justify="left").grid(row=5, column=0, columnspan=3, sticky="w", padx=(22, 0))
 
         # --- Erweitert ---
         f4 = ttk.LabelFrame(self.area, text=tr("frm_advanced"), padding=8)
@@ -781,18 +785,18 @@ class BuilderApp:
         ttk.Entry(fr, textvariable=self.v_r_comment).grid(row=1, column=1, columnspan=2, sticky="ew", **pad)
         ttk.Label(fr, text=tr("lbl_rglibc")).grid(row=2, column=0, sticky="w", **pad)
         self.v_r_glibc = tk.StringVar(value="2.28")
-        gl = ttk.Frame(fr)
-        gl.grid(row=2, column=1, columnspan=2, sticky="w", **pad)
-        ttk.Combobox(gl, textvariable=self.v_r_glibc, values=GLIBC_CHOICES, width=8).pack(side="left")
-        ttk.Label(gl, text="  " + tr("rglibc_hint"), foreground="#555").pack(side="left")
+        ttk.Combobox(fr, textvariable=self.v_r_glibc, values=GLIBC_CHOICES, width=8).grid(
+            row=2, column=1, sticky="w", **pad)
+        ttk.Label(fr, text=tr("rglibc_hint"), foreground="#555", wraplength=640,
+                  justify="left").grid(row=3, column=1, columnspan=2, sticky="w", padx=6)
         ttk.Checkbutton(fr, text=tr("opt_integrate"),
-                        variable=self.v_integrate).grid(row=3, column=0, columnspan=3, sticky="w", **pad)
+                        variable=self.v_integrate).grid(row=4, column=0, columnspan=3, sticky="w", **pad)
         self.lbl_rust = ttk.Label(fr, text="", foreground="#555", justify="left", wraplength=820)
-        self.lbl_rust.grid(row=4, column=0, columnspan=3, sticky="w", **pad)
-        ttk.Label(fr, text=tr("lbl_rscript")).grid(row=5, column=0, sticky="w", **pad)
+        self.lbl_rust.grid(row=5, column=0, columnspan=3, sticky="w", **pad)
+        ttk.Label(fr, text=tr("lbl_rscript")).grid(row=7, column=0, sticky="w", **pad)
         self.v_rscript = tk.StringVar(value=_existing_script(self.cfg.get("_rust_script"), DEFAULT_RUST_SCRIPT))
-        ttk.Entry(fr, textvariable=self.v_rscript).grid(row=5, column=1, sticky="ew", **pad)
-        ttk.Button(fr, text="...", width=4, command=self.choose_rscript).grid(row=5, column=2, **pad)
+        ttk.Entry(fr, textvariable=self.v_rscript).grid(row=7, column=1, sticky="ew", **pad)
+        ttk.Button(fr, text="...", width=4, command=self.choose_rscript).grid(row=7, column=2, **pad)
 
         # --- Knöpfe ---
         fb = ttk.Frame(main)
