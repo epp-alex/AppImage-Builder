@@ -24,6 +24,7 @@ Datei auswählen, Haken setzen, „AppImage bauen“ klicken – fertig ist eine
 - [Was passiert beim Bauen?](#was-passiert-beim-bauen)
 - [Kompatibilität (glibc)](#kompatibilität-glibc)
 - [Startmenü und Symbol](#startmenü-und-symbol)
+- [Sprachen](#sprachen)
 - [Den Builder selbst als AppImage bauen](#den-builder-selbst-als-appimage-bauen)
 - [Skripte ohne Oberfläche benutzen](#skripte-ohne-oberfläche-benutzen)
 - [Testen auf älteren Systemen](#testen-auf-älteren-systemen)
@@ -58,6 +59,7 @@ Datei auswählen, Haken setzen, „AppImage bauen“ klicken – fertig ist eine
 - Fertige AppImages **tragen sich beim ersten Start selbst ins Startmenü ein** – mit Symbol, auch im Dateimanager
 - Prüfung der benötigten **glibc-Version** am Ende jedes Builds
 - Der Builder kann **sich selbst als AppImage bauen**
+- Oberfläche auf **Deutsch und Englisch**, weitere Sprachen als JSON-Datei ergänzbar
 
 ---
 
@@ -255,6 +257,34 @@ APPIMAGE_NO_INTEGRATE=1 ./Programm-x86_64.AppImage
 
 ---
 
+## Sprachen
+
+Die Oberfläche gibt es auf **Deutsch** und **Englisch**. Beim ersten Start wird die Systemsprache genommen; oben rechts kann jederzeit umgeschaltet werden – ohne Neustart, alle Eingaben bleiben erhalten. Die Wahl wird gespeichert.
+
+Die Ausgabe der Build-Skripte ist auf Deutsch.
+
+### Weitere Sprache hinzufügen
+
+Ohne den Code zu ändern:
+
+1. Vorlage erzeugen (Englisch als Grundlage):
+   ```bash
+   python3 AppImage_Builder.py --export-lang en > lang/es.json
+   ```
+   oder `lang/_vorlage_en.json` kopieren und umbenennen.
+2. In der Datei `"_name"` auf den Namen der Sprache setzen (z. B. `"Español"`) und die Texte übersetzen. Platzhalter wie `{name}` oder `{path}` unverändert lassen.
+3. Programm neu starten – die Sprache erscheint in der Auswahl.
+
+Der Dateiname ist der Sprachcode (`es.json`, `fr.json`, `uk.json` …). Fehlende Texte werden automatisch auf Englisch angezeigt, eine Übersetzung kann also auch nach und nach entstehen.
+
+Gesucht wird in:
+- `lang/` neben `AppImage_Builder.py` (bzw. im AppImage eingepackt)
+- `~/.config/AppImageBuilder/lang/`
+
+Übersetzungen sind als Pull Request willkommen!
+
+---
+
 ## Den Builder selbst als AppImage bauen
 
 1. Diese vier Dateien in einen **eigenen, leeren Ordner** legen:
@@ -273,7 +303,7 @@ Als AppImage findet der Builder seine eingebauten Skripte selbst und gibt den Bu
 
 Eine Datei kann direkt beim Start übergeben werden:
 ```bash
-./AppImage_Builder.AppImage ~/Projekte/MeinProgramm/MeinProgramm.py
+./AppImage_Builder-x86_64.AppImage ~/Projekte/MeinProgramm/MeinProgramm.py
 ```
 
 ---
@@ -344,6 +374,7 @@ for i in $(seq 10); do timeout 3 ./Programm-x86_64.AppImage >/dev/null 2>&1; ech
 | `AppImage_Builder.png` | Programmsymbol |
 | `build_appimage_v2.sh` | Build-Skript für Python-Programme |
 | `build_appimage_rust.sh` | Build-Skript für Rust-Programme |
+| `lang/` | zusätzliche Sprachen (`<code>.json`), Vorlage `_vorlage_en.json` |
 
 Gespeicherte Einstellungen:
 ```
